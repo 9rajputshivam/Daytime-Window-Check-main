@@ -3,7 +3,8 @@
   "metaData": {
     "icon": "https://daytime-window-check-main.vercel.app/icon.png",
     "category": "custom",
-    "isConfigured":true
+    "isConfigured":true,
+    "configurationDisabled":true
   },
   "type": "REST",
 
