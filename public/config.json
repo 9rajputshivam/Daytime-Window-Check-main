@@ -1,7 +1,7 @@
 {
   "workflowApiVersion": "1.1",
   "metaData": {
-    "icon": "https://daytime-window-check.vercel.app/icon.png",
+    "icon": "https://daytime-window-check-main.vercel.app/icon.png",
     "category": "custom"
   },
   "type": "REST",
@@ -24,7 +24,7 @@
       { "isWithinWindow": "" },
       { "currentHour": "" }
     ],
-    "url": "https://daytime-window-check.vercel.app/activity/execute",
+    "url": "https://daytime-window-check-main.vercel.app/activity/execute",
     "verb": "POST",
     "body": {},
     "header": {},
@@ -40,22 +40,22 @@
 
   "configurationArguments": {
     "save": {
-      "url": "https://daytime-window-check.vercel.app/activity/save",
+      "url": "https://daytime-window-check-main.vercel.app/activity/save",
       "verb": "POST",
       "format": "json"
     },
     "publish": {
-      "url": "https://daytime-window-check.vercel.app/activity/publish",
+      "url": "https://daytime-window-check-main.vercel.app/activity/publish",
       "verb": "POST",
       "format": "json"
     },
     "validate": {
-      "url": "https://daytime-window-check.vercel.app/activity/validate",
+      "url": "https://daytime-window-check-main.vercel.app/activity/validate",
       "verb": "POST",
       "format": "json"
     },
     "stop": {
-      "url": "https://daytime-window-check.vercel.app/activity/stop",
+      "url": "https://daytime-window-check-main.vercel.app/activity/stop",
       "verb": "POST",
       "format": "json"
     }
@@ -63,7 +63,7 @@
 
   "userInterfaces": {
     "configModal": {
-      "url": "https://daytime-window-check.vercel.app/index.html",
+      "url": "https://daytime-window-check-main.vercel.app/index.html",
       "height": 450,
       "width": 450
     }
