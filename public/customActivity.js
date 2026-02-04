@@ -14,9 +14,10 @@ window.onload = function () {
     payload.arguments.execute.inArguments = [];
 
     payload.metaData.isConfigured = true;
-    payload.metaData.label = "Daytime Window Check";
-    payload.name = "Daytime Window Check";
+    payload.metaData.label = "Daytime Window";
+    payload.name = "Daytime Window";
 
     connection.trigger("updateActivity", payload);
   });
 };
+
