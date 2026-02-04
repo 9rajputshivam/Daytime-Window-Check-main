@@ -8,7 +8,7 @@
 
   "lang": {
     "en-US": {
-      "name": "Daytime Window Check",
+      "name": "Daytime Window",
       "description": "Validates daytime sending window by country"
     }
   },
