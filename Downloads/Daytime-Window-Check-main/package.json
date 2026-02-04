@@ -1,0 +1,26 @@
+{
+  "name": "sfmc-custom-activity",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"No tests to run\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Custom Journey Builder Activity to trigger SFMC Automation",
+  "engines": {
+    "node": ">=18.x"
+  },
+  "dependencies": {
+    "axios": "^1.9.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "luxon": "^3.7.2",
+    "uuid": "^9.0.0"
+  }
+}
