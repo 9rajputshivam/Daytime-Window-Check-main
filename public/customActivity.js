@@ -13,6 +13,7 @@ window.onload = function () {
     // IMPORTANT: Leave inArguments empty — Journey will inject DE binding itself
     payload.arguments.execute.inArguments = [];
 
+    payload.metaData = payload.metaData || {}; //adding initilization
     payload.metaData.isConfigured = true;
     payload.metaData.label = "Daytime Window";
     payload.name = "Daytime Window";
@@ -20,4 +21,7 @@ window.onload = function () {
     connection.trigger("updateActivity", payload);
   });
 };
+
+
+
 
