@@ -4,24 +4,28 @@ window.onload = function () {
 
   connection.trigger("ready");
 
-  connection.on("initActivity", data => payload = data || {});
+  connection.on("initActivity", data => {
+    payload = data || {};
+  });
 
   connection.on("clickedNext", function () {
     payload.arguments = payload.arguments || {};
     payload.arguments.execute = payload.arguments.execute || {};
 
-    // IMPORTANT: Leave inArguments empty — Journey will inject DE binding itself
-    payload.arguments.execute.inArguments = [];
+    // REQUIRED inArguments (must exist)
+    payload.arguments.execute.inArguments = [
+      {
+        country: "{{Contact.Attribute.Default.Country}}"
+      }
+    ];
 
-    payload.metaData = payload.metaData || {}; //adding initilization
+    // REQUIRED metadata
+    payload.metaData = payload.metaData || {};
     payload.metaData.isConfigured = true;
     payload.metaData.label = "Daytime Window";
+
     payload.name = "Daytime Window";
 
     connection.trigger("updateActivity", payload);
   });
 };
-
-
-
-
