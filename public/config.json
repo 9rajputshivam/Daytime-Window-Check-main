@@ -1,10 +1,11 @@
 {
   "workflowApiVersion": "1.1",
+  "type": "REST",
+
   "metaData": {
     "icon": "https://daytime-window-check-main.vercel.app/icon.png",
     "category": "custom"
   },
-  "type": "REST",
 
   "lang": {
     "en-US": {
@@ -13,51 +14,48 @@
     }
   },
 
-"arguments": {
-  "execute": {
-    "inArguments": [
-      {
-        "country": "{{Contact.Attribute.Default.Country}}"
-      }
-    ],
-    "outArguments": [
-      { "isWithinWindow": "" },
-      { "currentHour": "" }
-    ],
-    "url": "https://daytime-window-check-main.vercel.app/activity/execute",
-    "verb": "POST",
-    "body": {},
-    "header": {},
-    "format": "json",
-    "useJwt": true,
-    "timeout": 20000,
-    "retryCount": 3,
-    "retryDelay": 1000,
-    "concurrentRequests": 6
-  }
-},
-
+  "arguments": {
+    "execute": {
+      "inArguments": [
+        {
+          "country": "{{Contact.Attribute.Default.Country}}"
+        }
+      ],
+      "outArguments": [
+        { "isWithinWindow": "" },
+        { "currentHour": "" }
+      ],
+      "url": "https://daytime-window-check-main.vercel.app/activity/execute",
+      "verb": "POST",
+      "format": "json",
+      "useJwt": true,
+      "timeout": 20000,
+      "retryCount": 3,
+      "retryDelay": 1000,
+      "concurrentRequests": 6
+    }
+  },
 
   "configurationArguments": {
     "save": {
       "url": "https://daytime-window-check-main.vercel.app/activity/save",
       "verb": "POST",
-      "format": "json"
+      "useJwt": true
     },
     "publish": {
       "url": "https://daytime-window-check-main.vercel.app/activity/publish",
       "verb": "POST",
-      "format": "json"
+      "useJwt": true
     },
     "validate": {
       "url": "https://daytime-window-check-main.vercel.app/activity/validate",
       "verb": "POST",
-      "format": "json"
+      "useJwt": true
     },
     "stop": {
       "url": "https://daytime-window-check-main.vercel.app/activity/stop",
       "verb": "POST",
-      "format": "json"
+      "useJwt": true
     }
   },
 
@@ -74,40 +72,30 @@
       "execute": {
         "inArguments": [
           {
-            "country": {
-              "dataType": "Text",
-              "isNullable": false,
-              "direction": "in",
-              "access": "visible"
-            }
+            "name": "country",
+            "dataType": "Text",
+            "isNullable": false,
+            "direction": "in",
+            "access": "visible"
           }
         ],
         "outArguments": [
           {
-            "isWithinWindow": {
-              "dataType": "Boolean",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
-            }
+            "name": "isWithinWindow",
+            "dataType": "Boolean",
+            "isNullable": false,
+            "direction": "out",
+            "access": "visible"
           },
           {
-            "currentHour": {
-              "dataType": "Number",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
-            }
+            "name": "currentHour",
+            "dataType": "Number",
+            "isNullable": false,
+            "direction": "out",
+            "access": "visible"
           }
         ]
       }
     }
   }
 }
-
-
-
-
-
-
-
