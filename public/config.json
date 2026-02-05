@@ -79,7 +79,8 @@
             "country": {
               "dataType": "Text",
               "isNullable": false,
-              "direction": "in"
+              "direction": "in",
+              "access": "visible"
             }
           }
         ],
@@ -88,14 +89,16 @@
             "isWithinWindow": {
               "dataType": "Boolean",
               "isNullable": false,
-              "direction": "out"
+              "direction": "out",
+              "access": "visible"
             }
           },
           {
             "currentHour": {
               "dataType": "Number",
               "isNullable": false,
-              "direction": "out"
+              "direction": "out",
+              "access": "visible"
             }
           }
         ]
