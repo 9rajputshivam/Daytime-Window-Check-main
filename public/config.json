@@ -2,9 +2,7 @@
   "workflowApiVersion": "1.1",
   "metaData": {
     "icon": "https://daytime-window-check-main.vercel.app/icon.png",
-    "category": "custom",
-    "isConfigured":true,
-    "configurationDisabled":true
+    "category": "custom"
   },
   "type": "REST",
 
