@@ -104,7 +104,7 @@ function evaluateDaytimeWindow(country) {
   const weekday = now.weekday; // 1 = Monday, 7 = Sunday
 
   // Block sending completely on Saturday (6) or Sunday (7)
-  if (weekday === 6 || weekday === 7) {
+  if (weekday === 5 || weekday === 7) {
     return { isWithinWindow: false, currentHour: hour };
   }
 
@@ -152,3 +152,4 @@ app.post('/activity/stop', allowAll, (req, res) => res.sendStatus(200));
 
 /* -------------------- Start Server -------------------- */
 app.listen(PORT, () => console.log(`🚀 Daytime Window Check running on port ${PORT}`));
+
