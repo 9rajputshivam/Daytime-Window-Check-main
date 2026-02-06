@@ -5,14 +5,14 @@
     "category": "custom"
   },
   "type": "REST",
-
+ 
   "lang": {
     "en-US": {
       "name": "Daytime Window Check",
       "description": "Validates daytime sending window by country"
     }
   },
-
+ 
 "arguments": {
   "execute": {
     "inArguments": [
@@ -36,8 +36,8 @@
     "concurrentRequests": 6
   }
 },
-
-
+ 
+ 
   "configurationArguments": {
     "save": {
       "url": "https://daytime-window-check-main.vercel.app/activity/save",
@@ -60,7 +60,7 @@
       "useJwt": true
     }
   },
-
+ 
   "userInterfaces": {
     "configModal": {
       "url": "https://daytime-window-check-main.vercel.app/index.html",
@@ -68,33 +68,36 @@
       "width": 450
     }
   },
-
+ 
   "schema": {
     "arguments": {
       "execute": {
         "inArguments": [
           {
-            "name": "country",
-            "dataType": "Text",
-            "isNullable": false,
-            "direction": "in",
-            "access": "visible"
+            "country": {
+              "dataType": "Text",
+              "isNullable": false,
+              "direction": "in",
+              "access": "visible"
+            }
           }
         ],
         "outArguments": [
           {
-            "name": "isWithinWindow",
-            "dataType": "Boolean",
-            "isNullable": false,
-            "direction": "out",
-            "access": "visible"
+            "isWithinWindow": {
+              "dataType": "Boolean",
+              "isNullable": false,
+              "direction": "out",
+              "access": "visible"
+            }
           },
           {
-            "name": "currentHour",
-            "dataType": "Number",
-            "isNullable": false,
-            "direction": "out",
-            "access": "visible"
+            "currentHour": {
+              "dataType": "Number",
+              "isNullable": false,
+              "direction": "out",
+              "access": "visible"
+            }
           }
         ]
       }
