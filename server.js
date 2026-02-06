@@ -8,18 +8,13 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/* -------------------- Middleware -------------------- */
+/* ---------------- Middleware ---------------- */
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* -------------------- Allow All (NO JWT) -------------------- */
-function allowAll(req, res, next) {
-  next();
-}
-
-/* -------------------- Timezone Logic -------------------- */
+/* ---------------- Timezone Logic ---------------- */
 const countryTimezones = {
   india: 'Asia/Kolkata',
   germany: 'Europe/Berlin',
@@ -29,14 +24,10 @@ const countryTimezones = {
 };
 
 function evaluateDaytimeWindow(country) {
-  if (!country) {
-    return { isWithinWindow: false, currentHour: null };
-  }
+  if (!country) return { isWithinWindow: false, currentHour: null };
 
   const tz = countryTimezones[country.toLowerCase()];
-  if (!tz) {
-    return { isWithinWindow: false, currentHour: null };
-  }
+  if (!tz) return { isWithinWindow: false, currentHour: null };
 
   const now = DateTime.now().setZone(tz);
   return {
@@ -45,10 +36,10 @@ function evaluateDaytimeWindow(country) {
   };
 }
 
-/* -------------------- Deduplication -------------------- */
+/* ---------------- Deduplication ---------------- */
 const executionCache = new Set();
 
-/* -------------------- Static / Health -------------------- */
+/* ---------------- Static ---------------- */
 app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, 'public/index.html'))
 );
@@ -63,12 +54,10 @@ app.get('/.well-known/journeybuilder/config.json', (req, res) =>
   res.sendFile(path.join(__dirname, 'public/config.json'))
 );
 
-/* -------------------- Execute Endpoint -------------------- */
-app.post('/activity/execute', allowAll, (req, res) => {
+/* ---------------- Execute ---------------- */
+app.post('/activity/execute', (req, res) => {
   const dedupeKey = `${req.body.activityId}:${req.body.definitionInstanceId}`;
-  if (executionCache.has(dedupeKey)) {
-    return res.sendStatus(200);
-  }
+  if (executionCache.has(dedupeKey)) return res.sendStatus(200);
   executionCache.add(dedupeKey);
 
   const inArgs = Object.assign({}, ...(req.body.inArguments || []));
@@ -82,13 +71,13 @@ app.post('/activity/execute', allowAll, (req, res) => {
   ]);
 });
 
-/* -------------------- Lifecycle Endpoints -------------------- */
-app.post('/activity/save', allowAll, (req, res) => res.sendStatus(200));
-app.post('/activity/validate', allowAll, (req, res) => res.sendStatus(200));
-app.post('/activity/publish', allowAll, (req, res) => res.sendStatus(200));
-app.post('/activity/stop', allowAll, (req, res) => res.sendStatus(200));
+/* ---------------- Lifecycle (MANDATORY) ---------------- */
+app.post('/activity/save', (req, res) => res.status(200).json(req.body));
+app.post('/activity/validate', (req, res) => res.status(200).json(req.body));
+app.post('/activity/publish', (req, res) => res.status(200).json(req.body));
+app.post('/activity/stop', (req, res) => res.status(200).json(req.body));
 
-/* -------------------- Start Server -------------------- */
+/* ---------------- Start ---------------- */
 app.listen(PORT, () => {
   console.log(`🚀 Daytime Window Check running on port ${PORT}`);
 });
