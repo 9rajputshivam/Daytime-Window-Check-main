@@ -21,8 +21,8 @@
       }
     ],
     "outArguments": [
-      { "isWithinWindow": "" },
-      { "currentHour": "" }
+      { "name": "isWithinWindow"},
+      { "name": "currentHour"}
     ],
     "url": "https://daytime-window-check-main.vercel.app/activity/execute",
     "verb": "POST",
