@@ -55,7 +55,7 @@
     "stop": {
       "url": "https://daytime-window-check-main.vercel.app/activity/stop",
       "verb": "POST",
-      "useJwt": true
+      "useJwt": false
     }
   },
 
