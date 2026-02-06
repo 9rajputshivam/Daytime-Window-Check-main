@@ -74,30 +74,27 @@
       "execute": {
         "inArguments": [
           {
-            "country": {
-              "dataType": "Text",
-              "isNullable": false,
-              "direction": "in",
-              "access": "visible"
-            }
+            "name": "country",
+            "dataType": "Text",
+            "isNullable": false,
+            "direction": "in",
+            "access": "visible"
           }
         ],
         "outArguments": [
           {
-            "isWithinWindow": {
-              "dataType": "Boolean",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
-            }
+            "name": "isWithinWindow",
+            "dataType": "Boolean",
+            "isNullable": false,
+            "direction": "out",
+            "access": "visible"
           },
           {
-            "currentHour": {
-              "dataType": "Number",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
-            }
+            "name": "currentHour",
+            "dataType": "Number",
+            "isNullable": false,
+            "direction": "out",
+            "access": "visible"
           }
         ]
       }
