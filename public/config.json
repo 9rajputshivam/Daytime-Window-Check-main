@@ -1,120 +1,103 @@
-
 {
   "workflowApiVersion": "1.1",
   "metaData": {
-    "icon": "https://daytime-window-check-main.vercel.app/icon.png",
-    "category": "custom",
-    "isConfigured":true,
-    "configurationDisabled":true
+    "icon": "https://daytime-window-check-main.vercel.app/icon.png",
+    "category": "custom"
   },
   "type": "REST",
 
-
-
   "lang": {
-    "en-US": {
-      "name": "Daytime Window",
-      "description": "Validates daytime sending window by country"
-    }
+    "en-US": {
+      "name": "Daytime Window Check",
+      "description": "Validates daytime sending window by country"
+    }
   },
-
-
 
 "arguments": {
   "execute": {
-    "inArguments": [
-      {
-        "country": "{{Contact.Attribute.Default.Country}}"
-      }
-    ],
-    "outArguments": [
-      { "isWithinWindow": "" },
-      { "currentHour": "" }
-    ],
-    "url": "https://daytime-window-check-main.vercel.app/activity/execute",
-    "verb": "POST",
-    "body": {},
-    "header": {},
-    "format": "json",
-    "useJwt": true,
-    "timeout": 20000,
-    "retryCount": 3,
-    "retryDelay": 1000,
-    "concurrentRequests": 6
+    "inArguments": [
+      {
+        "country": "{{Contact.Attribute.Default.Country}}"
+      }
+    ],
+    "outArguments": [
+      { "isWithinWindow": "" },
+      { "currentHour": "" }
+    ],
+    "url": "https://daytime-window-check-main.vercel.app/activity/execute",
+    "verb": "POST",
+    "body": {},
+    "header": {},
+    "format": "json",
+    "useJwt": true,
+    "timeout": 20000,
+    "retryCount": 3,
+    "retryDelay": 1000,
+    "concurrentRequests": 6
   }
 },
 
 
-
-
-
   "configurationArguments": {
-    "save": {
-      "url": "https://daytime-window-check-main.vercel.app/activity/save",
-      "verb": "POST",
-      "format": "json"
-    },
-    "publish": {
-      "url": "https://daytime-window-check-main.vercel.app/activity/publish",
-      "verb": "POST",
-      "format": "json"
-    },
-    "validate": {
-      "url": "https://daytime-window-check-main.vercel.app/activity/validate",
-      "verb": "POST",
-      "format": "json"
-    },
-    "stop": {
-      "url": "https://daytime-window-check-main.vercel.app/activity/stop",
-      "verb": "POST",
-      "format": "json"
-    }
+    "save": {
+      "url": "https://daytime-window-check-main.vercel.app/activity/save",
+      "verb": "POST",
+      "format": "json"
+    },
+    "publish": {
+      "url": "https://daytime-window-check-main.vercel.app/activity/publish",
+      "verb": "POST",
+      "format": "json"
+    },
+    "validate": {
+      "url": "https://daytime-window-check-main.vercel.app/activity/validate",
+      "verb": "POST",
+      "format": "json"
+    },
+    "stop": {
+      "url": "https://daytime-window-check-main.vercel.app/activity/stop",
+      "verb": "POST",
+      "format": "json"
+    }
   },
-
-
 
   "userInterfaces": {
-    "configModal": {
-      "url": "https://daytime-window-check-main.vercel.app/index.html",
-      "height": 450,
-      "width": 450
-    }
+    "configModal": {
+      "url": "https://daytime-window-check-main.vercel.app/index.html",
+      "height": 450,
+      "width": 450
+    }
   },
 
-
-
   "schema": {
-    "arguments": {
-      "execute": {
-        "inArguments": [
-          {
-            "country": {
-              "dataType": "Text",
-              "isNullable": false,
-              "direction": "in",
-              "access": "visible"
-            }
-          }
-        ],
-        "outArguments": [
-          {
-            "isWithinWindow": {
-              "dataType": "Boolean",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
-            }
-          },
-          {
-            "currentHour": {
-              "dataType": "Number",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
-            }
-          }
-        ]
-      }
-    }
+    "arguments": {
+      "execute": {
+        "inArguments": [
+          {
+            "country": {
+              "dataType": "Text",
+              "isNullable": false,
+              "direction": "in"
+            }
+          }
+        ],
+        "outArguments": [
+          {
+            "isWithinWindow": {
+              "dataType": "Boolean",
+              "isNullable": false,
+              "direction": "out"
+            }
+          },
+          {
+            "currentHour": {
+              "dataType": "Number",
+              "isNullable": false,
+              "direction": "out"
+            }
+          }
+        ]
+      }
+    }
   }
 }
