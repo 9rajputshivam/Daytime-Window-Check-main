@@ -16,6 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 /* ---------------- Timezone Logic ---------------- */
 const countryTimezones = {
+  india: 'Asia/Kolkata',
   austria: 'Europe/Vienna',
   belgium: 'Europe/Brussels',
   bulgaria: 'Europe/Sofia',
@@ -104,4 +105,5 @@ app.post('/activity/stop', (req, res) => res.status(200).json(req.body));
 app.listen(PORT, () => {
   console.log(`🚀 Daytime Window Check running on port ${PORT}`);
 });
+
 
