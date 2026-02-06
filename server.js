@@ -101,6 +101,12 @@ function evaluateDaytimeWindow(country) {
 
   const now = DateTime.now().setZone(tz);
   const hour = now.hour;
+  const weekday = now.weekday; // 1 = Monday, 7 = Sunday
+
+  // Block sending completely on Saturday (6) or Sunday (7)
+  if (weekday === 6 || weekday === 7) {
+    return { isWithinWindow: false, currentHour: hour };
+  }
 
   // Check if current hour falls in any restricted window
   const isRestricted = restrictedWindows.some(({ start, end }) => {
@@ -146,6 +152,3 @@ app.post('/activity/stop', allowAll, (req, res) => res.sendStatus(200));
 
 /* -------------------- Start Server -------------------- */
 app.listen(PORT, () => console.log(`🚀 Daytime Window Check running on port ${PORT}`));
-
-
-
