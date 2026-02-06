@@ -53,7 +53,7 @@ const countryTimezones = {
 
 /* -------------------- Restricted Sending Windows -------------------- */
 const countryRestrictedWindows = {
-  austria: [{ start: 20, end: 8 }],
+  austria: [{ start: 20, end: 10 }],
   belgium: [{ start: 20, end: 9 }],
   bulgaria: [{ start: 21, end: 9 }],
   croatia: [{ start: 20, end: 8 }],
@@ -145,3 +145,4 @@ app.post('/activity/stop', allowAll, (req, res) => res.sendStatus(200));
 
 /* -------------------- Start Server -------------------- */
 app.listen(PORT, () => console.log(`🚀 Daytime Window Check running on port ${PORT}`));
+
