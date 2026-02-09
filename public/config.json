@@ -83,23 +83,24 @@
           }
         ],
         "outArguments": [
-          {
-            "isWithinWindow": {
-              "dataType": "Boolean",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
-            }
-          },
-          {
-            "currentHour": {
-              "dataType": "Number",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
-            }
+        {
+          "isWithinWindow": {
+            "dataType": "Text",
+            "isNullable": false,
+            "direction": "out",
+            "access": "visible"
           }
-        ]
+        },
+        {
+          "currentHour": {
+            "dataType": "Text",
+            "isNullable": false,
+            "direction": "out",
+            "access": "visible"
+          }
+        }
+      ]
+
       }
     }
   }
