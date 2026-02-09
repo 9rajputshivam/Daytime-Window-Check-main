@@ -1,9 +1,11 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const path = require('path');
-const { DateTime } = require('luxon');
-require('dotenv').config();
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const path = require("path");
+const axios = require("axios");
+const jwt = require("jsonwebtoken");
+const { DateTime } = require("luxon");
+require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,162 +14,163 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-/* -------------------- Allow All (NO JWT) -------------------- */
-function allowAll(req, res, next) {
-  next();
+/* -------------------- JWT Validation (REQUIRED) -------------------- */
+function validateJwt(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).send("Missing Authorization header");
+
+  const token = authHeader.replace("Bearer ", "");
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch (err) {
+    return res.status(401).send("Invalid JWT");
+  }
 }
 
-/* -------------------- Timezone Logic -------------------- */
-const countryTimezones = {
-  india: 'Asia/Kolkata',
-  austria: 'Europe/Vienna',
-  belgium: 'Europe/Brussels',
-  bulgaria: 'Europe/Sofia',
-  croatia: 'Europe/Zagreb',
-  cyprus: 'Asia/Nicosia',
-  czechia: 'Europe/Prague',
-  denmark: 'Europe/Copenhagen',
-  estonia: 'Europe/Tallinn',
-  finland: 'Europe/Helsinki',
-  france: 'Europe/Paris',
-  germany: 'Europe/Berlin',
-  greece: 'Europe/Athens',
-  hungary: 'Europe/Budapest',
-  ireland: 'Europe/Dublin',
-  italy: 'Europe/Rome',
-  latvia: 'Europe/Riga',
-  lithuania: 'Europe/Vilnius',
-  luxembourg: 'Europe/Luxembourg',
-  malta: 'Europe/Malta',
-  netherlands: 'Europe/Amsterdam',
-  poland: 'Europe/Warsaw',
-  portugal: 'Europe/Lisbon',
-  romania: 'Europe/Bucharest',
-  slovakia: 'Europe/Bratislava',
-  slovenia: 'Europe/Ljubljana',
-  spain: 'Europe/Madrid',
-  sweden: 'Europe/Stockholm'
-};
+/* -------------------- SFMC OAuth -------------------- */
+let cachedToken = null;
+let tokenExpiry = null;
 
-/* -------------------- Restricted Sending Windows -------------------- */
-const countryRestrictedWindows = {
-  india: [{ start: 20, end: 10 }],
-  austria: [{ start: 20, end: 8 }],
-  belgium: [{ start: 20, end: 9 }],
-  bulgaria: [{ start: 21, end: 9 }],
-  croatia: [{ start: 20, end: 8 }],
-  cyprus: [{ start: 21, end: 8 }],
-  czechia: [{ start: 20, end: 8 }],
-  denmark: [{ start: 21, end: 9 }],
-  estonia: [{ start: 21, end: 8 }],
-  finland: [{ start: 21, end: 9 }],
-  france: [
-    { start: 20, end: 10 },
-    { start: 13, end: 14 }
-  ],
-  germany: [{ start: 20, end: 8 }],
-  greece: [
-    { start: 20, end: 9 },
-    { start: 14, end: 17 }
-  ],
-  hungary: [{ start: 21, end: 8 }],
-  ireland: [{ start: 21, end: 9 }],
-  italy: [{ start: 21, end: 9 }],
-  latvia: [{ start: 21, end: 8 }],
-  lithuania: [{ start: 21, end: 8 }],
-  luxembourg: [{ start: 20, end: 8 }],
-  malta: [{ start: 21, end: 8 }],
-  netherlands: [{ start: 22, end: 9 }],
-  poland: [{ start: 20, end: 8 }],
-  portugal: [{ start: 21, end: 9 }],
-  romania: [{ start: 21, end: 8 }],
-  slovakia: [{ start: 20, end: 8 }],
-  slovenia: [{ start: 20, end: 8 }],
-  spain: [{ start: 21, end: 9 }],
-  sweden: [{ start: 21, end: 9 }]
-};
+async function getAccessToken() {
+  if (cachedToken && tokenExpiry > Date.now()) {
+    return cachedToken;
+  }
 
-/* -------------------- Evaluate if current time is allowed -------------------- */
-function evaluateDaytimeWindow(country) {
-  if (!country) return { isWithinWindow: false, currentHour: null };
+  const response = await axios.post(
+    `https://${process.env.SFMC_SUBDOMAIN}.auth.marketingcloudapis.com/v2/token`,
+    {
+      grant_type: "client_credentials",
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
+      account_id: process.env.ACCOUNT_ID
+    }
+  );
 
-  const key = country.toLowerCase();
-  const tz = countryTimezones[key];
-  const restrictedWindows = countryRestrictedWindows[key];
+  cachedToken = response.data.access_token;
+  tokenExpiry = Date.now() + response.data.expires_in * 1000 - 60000;
 
-  if (!tz || !restrictedWindows) return { isWithinWindow: false, currentHour: null };
+  return cachedToken;
+}
 
-  const now = DateTime.now().setZone(tz);
+/* -------------------- Fetch Country Rules from DE -------------------- */
+async function getCountryRules(country) {
+  const token = await getAccessToken();
+
+  const response = await axios.post(
+    `https://${process.env.SFMC_SUBDOMAIN}.rest.marketingcloudapis.com/hub/v1/dataevents/key:Country_Restricted_Window/rowset`,
+    {
+      filter: {
+        leftOperand: "Country",
+        operator: "equals",
+        rightOperand: country.toLowerCase()
+      }
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    }
+  );
+
+  return response.data.items || [];
+}
+
+/* -------------------- Business Logic -------------------- */
+async function evaluateDaytimeWindow(country) {
+  if (!country) {
+    return { isWithinWindow: false, currentHour: null };
+  }
+
+  const rules = await getCountryRules(country);
+
+  // If no rule found → allow sending
+  if (!rules.length) {
+    return { isWithinWindow: true, currentHour: null };
+  }
+
+  const timezone = rules[0].Timezone;
+  const now = DateTime.now().setZone(timezone);
   const hour = now.hour;
-  const weekday = now.weekday; // 1 = Monday, 7 = Sunday
+  const weekday = now.weekday; // 6=Sat, 7=Sun
 
-  // Block sending completely on Saturday (6) or Sunday (7)
-  if (weekday === 6 || weekday === 7) {
+  // Weekend block
+  if (
+    rules.some(r => r.WeekendBlocked === true) &&
+    (weekday === 6 || weekday === 7)
+  ) {
     return { isWithinWindow: false, currentHour: hour };
   }
 
-  // Check if current hour falls in any restricted window
-  const isRestricted = restrictedWindows.some(({ start, end }) => {
+  // Time window block
+  const isRestricted = rules.some(r => {
+    const start = r.StartHour;
+    const end = r.EndHour;
+
     if (start > end) {
-      // Overnight window (e.g., 20 → 8)
       return hour >= start || hour < end;
     }
-    // Same-day window (e.g., 13 → 14)
     return hour >= start && hour < end;
   });
 
-  return { isWithinWindow: !isRestricted, currentHour: hour };
+  return {
+    isWithinWindow: !isRestricted,
+    currentHour: hour
+  };
 }
 
-/* -------------------- Deduplication -------------------- */
-const executionCache = new Set();
-
 /* -------------------- Static / Health -------------------- */
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
-app.get('/icon.png', (req, res) => res.sendFile(path.join(__dirname, 'public/icon.png')));
-app.get('/health', (req, res) => res.send('OK'));
-app.get('/.well-known/journeybuilder/config.json', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public/config.json'))
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "public/index.html"))
+);
+
+app.get("/icon.png", (req, res) =>
+  res.sendFile(path.join(__dirname, "public/icon.png"))
+);
+
+app.get("/health", (req, res) => res.send("OK"));
+
+app.get("/.well-known/journeybuilder/config.json", (req, res) =>
+  res.sendFile(path.join(__dirname, "public/config.json"))
 );
 
 /* -------------------- Execute Endpoint -------------------- */
-app.post('/activity/execute', allowAll, (req, res) => {
+app.post("/activity/execute", validateJwt, async (req, res) => {
   res.setHeader("Content-Type", "application/json");
 
-  const dedupeKey = `${req.body.activityId}:${req.body.definitionInstanceId}`;
+  try {
+    const inArgs = Object.assign({}, ...(req.body.inArguments || []));
+    const country = inArgs.country;
 
-  if (executionCache.has(dedupeKey)) {
+    const result = await evaluateDaytimeWindow(country);
+
+    return res.status(200).json([
+      {
+        isWithinWindow: result.isWithinWindow ? "true" : "false",
+        currentHour:
+          result.currentHour !== null ? String(result.currentHour) : ""
+      }
+    ]);
+  } catch (err) {
+    console.error("Execute error:", err);
+
+    // NEVER return non-200 (prevents JB hard bounce)
     return res.status(200).json([
       { isWithinWindow: "", currentHour: "" }
     ]);
   }
-  executionCache.add(dedupeKey);
-
-  const inArgs = Object.assign({}, ...(req.body.inArguments || []));
-  const result = evaluateDaytimeWindow(inArgs.country);
-
-  return res.status(200).json([
-    {
-      isWithinWindow: result.isWithinWindow ? "true" : "false",
-      currentHour:
-        result.currentHour !== null ? String(result.currentHour) : ""
-    }
-  ]);
 });
 
-
-
 /* -------------------- Lifecycle Endpoints -------------------- */
-app.post('/activity/save', allowAll, (req, res) => res.sendStatus(200));
-app.post('/activity/validate', allowAll, (req, res) => res.sendStatus(200));
-app.post('/activity/publish', allowAll, (req, res) => res.sendStatus(200));
-app.post('/activity/stop', allowAll, (req, res) => res.sendStatus(200));
+app.post("/activity/save", validateJwt, (req, res) => res.sendStatus(200));
+app.post("/activity/validate", validateJwt, (req, res) => res.sendStatus(200));
+app.post("/activity/publish", validateJwt, (req, res) => res.sendStatus(200));
+app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
 
 /* -------------------- Start Server -------------------- */
-app.listen(PORT, () => console.log(`🚀 Daytime Window Check running on port ${PORT}`));
-
-
-
-
+app.listen(PORT, () =>
+  console.log(`🚀 Daytime Window Check running on port ${PORT}`)
+);
