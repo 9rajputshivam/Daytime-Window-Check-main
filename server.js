@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
 const axios = require("axios");
-const jwt = require("jsonwebtoken");
 const { DateTime } = require("luxon");
 require("dotenv").config();
 
@@ -16,18 +15,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
-/* -------------------- JWT Validation (REQUIRED) -------------------- */
-function validateJwt(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).send("Missing Authorization header");
-
-  const token = authHeader.replace("Bearer ", "");
-  try {
-    jwt.verify(token, process.env.JWT_SECRET);
-    next();
-  } catch (err) {
-    return res.status(401).send("Invalid JWT");
-  }
+/* -------------------- Allow All (Journey Builder Safe) -------------------- */
+function allowAll(req, res, next) {
+  next();
 }
 
 /* -------------------- SFMC OAuth -------------------- */
@@ -59,19 +49,14 @@ async function getAccessToken() {
 async function getCountryRules(country) {
   const token = await getAccessToken();
 
-  const response = await axios.post(
-    `https://${process.env.SFMC_SUBDOMAIN}.rest.marketingcloudapis.com/hub/v1/dataevents/key:Country_Restricted_Window/rowset`,
-    {
-      filter: {
-        leftOperand: "Country",
-        operator: "equals",
-        rightOperand: country.toLowerCase()
-      }
-    },
+  const response = await axios.get(
+    `https://${process.env.SFMC_SUBDOMAIN}.rest.marketingcloudapis.com/data/v1/customobjectdata/key/Country_Restricted_Window/rowset`,
     {
       headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
+        Authorization: `Bearer ${token}`
+      },
+      params: {
+        $filter: `Country eq '${country.toLowerCase()}'`
       }
     }
   );
@@ -87,7 +72,7 @@ async function evaluateDaytimeWindow(country) {
 
   const rules = await getCountryRules(country);
 
-  // If no rule found → allow sending
+  // If no rules found → allow sending
   if (!rules.length) {
     return { isWithinWindow: true, currentHour: null };
   }
@@ -95,9 +80,9 @@ async function evaluateDaytimeWindow(country) {
   const timezone = rules[0].Timezone;
   const now = DateTime.now().setZone(timezone);
   const hour = now.hour;
-  const weekday = now.weekday; // 6=Sat, 7=Sun
+  const weekday = now.weekday; // 6 = Sat, 7 = Sun
 
-  // Weekend block
+  // Weekend restriction
   if (
     rules.some(r => r.WeekendBlocked === true) &&
     (weekday === 6 || weekday === 7)
@@ -105,14 +90,16 @@ async function evaluateDaytimeWindow(country) {
     return { isWithinWindow: false, currentHour: hour };
   }
 
-  // Time window block
+  // Time window restriction
   const isRestricted = rules.some(r => {
     const start = r.StartHour;
     const end = r.EndHour;
 
     if (start > end) {
+      // Overnight window (e.g. 20 → 8)
       return hour >= start || hour < end;
     }
+
     return hour >= start && hour < end;
   });
 
@@ -138,7 +125,7 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 );
 
 /* -------------------- Execute Endpoint -------------------- */
-app.post("/activity/execute", validateJwt, async (req, res) => {
+app.post("/activity/execute", allowAll, async (req, res) => {
   res.setHeader("Content-Type", "application/json");
 
   try {
@@ -157,7 +144,7 @@ app.post("/activity/execute", validateJwt, async (req, res) => {
   } catch (err) {
     console.error("Execute error:", err);
 
-    // NEVER return non-200 (prevents JB hard bounce)
+    // MUST always return 200 for Journey Builder
     return res.status(200).json([
       { isWithinWindow: "", currentHour: "" }
     ]);
@@ -165,10 +152,10 @@ app.post("/activity/execute", validateJwt, async (req, res) => {
 });
 
 /* -------------------- Lifecycle Endpoints -------------------- */
-app.post("/activity/save", validateJwt, (req, res) => res.sendStatus(200));
-app.post("/activity/validate", validateJwt, (req, res) => res.sendStatus(200));
-app.post("/activity/publish", validateJwt, (req, res) => res.sendStatus(200));
-app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
+app.post("/activity/save", allowAll, (req, res) => res.sendStatus(200));
+app.post("/activity/validate", allowAll, (req, res) => res.sendStatus(200));
+app.post("/activity/publish", allowAll, (req, res) => res.sendStatus(200));
+app.post("/activity/stop", allowAll, (req, res) => res.sendStatus(200));
 
 /* -------------------- Start Server -------------------- */
 app.listen(PORT, () =>
