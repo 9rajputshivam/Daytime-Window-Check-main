@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
 const axios = require("axios");
-const jwt = require("jsonwebtoken");
 const { DateTime } = require("luxon");
 require("dotenv").config();
 
@@ -15,31 +14,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-
-/* -------------------- JWT Validation -------------------- */
-/**
- * Journey Builder ALWAYS sends Authorization header
- * Postman DOES NOT
- * So we allow Postman when NODE_ENV !== production
- */
-function validateJwt(req, res, next) {
-  if (process.env.NODE_ENV !== "production") {
-    return next(); // allow Postman / local testing
-  }
-
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).send("Missing Authorization header");
-  }
-
-  const token = authHeader.replace("Bearer ", "");
-  try {
-    jwt.verify(token, process.env.JWT_SECRET);
-    next();
-  } catch (err) {
-    return res.status(401).send("Invalid JWT");
-  }
-}
 
 /* -------------------- SFMC OAuth -------------------- */
 let cachedToken = null;
@@ -93,14 +67,14 @@ async function getCountryRules(country) {
 /* -------------------- Business Logic -------------------- */
 async function evaluateDaytimeWindow(country) {
   if (!country) {
-    return { isWithinWindow: true, currentHour: "" };
+    return { isWithinWindow: "true", currentHour: "" };
   }
 
   const rules = await getCountryRules(country);
 
-  // No rule found → allow send
+  // If country not found → allow send
   if (!rules.length) {
-    return { isWithinWindow: true, currentHour: "" };
+    return { isWithinWindow: "true", currentHour: "" };
   }
 
   const rule = rules[0];
@@ -108,25 +82,28 @@ async function evaluateDaytimeWindow(country) {
   const hour = now.hour;
   const weekday = now.weekday; // 6 = Sat, 7 = Sun
 
-  // Weekend block
+  // Weekend restriction
   if (rule.WeekendBlocked && (weekday === 6 || weekday === 7)) {
-    return { isWithinWindow: false, currentHour: String(hour) };
+    return {
+      isWithinWindow: "false",
+      currentHour: String(hour)
+    };
   }
 
   // Time restriction
   const start = rule.StartHour;
   const end = rule.EndHour;
 
-  let isRestricted = false;
+  let isRestricted;
   if (start > end) {
-    // Overnight window (20 → 8)
+    // Overnight window (e.g. 20 → 8)
     isRestricted = hour >= start || hour < end;
   } else {
     isRestricted = hour >= start && hour < end;
   }
 
   return {
-    isWithinWindow: !isRestricted,
+    isWithinWindow: isRestricted ? "false" : "true",
     currentHour: String(hour)
   };
 }
@@ -147,7 +124,7 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 );
 
 /* -------------------- Execute Endpoint -------------------- */
-app.post("/activity/execute", validateJwt, async (req, res) => {
+app.post("/activity/execute", async (req, res) => {
   res.setHeader("Content-Type", "application/json");
 
   try {
@@ -158,14 +135,14 @@ app.post("/activity/execute", validateJwt, async (req, res) => {
 
     return res.status(200).json([
       {
-        isWithinWindow: result.isWithinWindow ? "true" : "false",
+        isWithinWindow: result.isWithinWindow,
         currentHour: result.currentHour
       }
     ]);
   } catch (err) {
     console.error("Execute error:", err);
 
-    // NEVER break Journey Builder
+    // MUST always return 200 to avoid JB hard bounce
     return res.status(200).json([
       { isWithinWindow: "", currentHour: "" }
     ]);
@@ -173,10 +150,10 @@ app.post("/activity/execute", validateJwt, async (req, res) => {
 });
 
 /* -------------------- Lifecycle Endpoints -------------------- */
-app.post("/activity/save", validateJwt, (req, res) => res.sendStatus(200));
-app.post("/activity/validate", validateJwt, (req, res) => res.sendStatus(200));
-app.post("/activity/publish", validateJwt, (req, res) => res.sendStatus(200));
-app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
+app.post("/activity/save", (req, res) => res.sendStatus(200));
+app.post("/activity/validate", (req, res) => res.sendStatus(200));
+app.post("/activity/publish", (req, res) => res.sendStatus(200));
+app.post("/activity/stop", (req, res) => res.sendStatus(200));
 
 /* -------------------- Start Server -------------------- */
 app.listen(PORT, () =>
