@@ -17,7 +17,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 /* -------------------- JWT Validation -------------------- */
+/**
+ * Journey Builder ALWAYS sends Authorization header
+ * Postman DOES NOT
+ * So we allow Postman when NODE_ENV !== production
+ */
 function validateJwt(req, res, next) {
+  if (process.env.NODE_ENV !== "production") {
+    return next(); // allow Postman / local testing
+  }
+
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).send("Missing Authorization header");
@@ -42,7 +51,7 @@ async function getAccessToken() {
   }
 
   const response = await axios.post(
-    `${process.env.SFMC_AUTH_BASE}/v2/token`,
+    `${process.env.AUTH_BASE_URL}/v2/token`,
     {
       grant_type: "client_credentials",
       client_id: process.env.CLIENT_ID,
@@ -62,7 +71,7 @@ async function getCountryRules(country) {
   const token = await getAccessToken();
 
   const response = await axios.post(
-    `${process.env.SFMC_REST_BASE}/hub/v1/dataevents/key:Country_Restricted_Window/rowset`,
+    `${process.env.REST_BASE_URL}/hub/v1/dataevents/key:Country_Restricted_Window/rowset`,
     {
       filter: {
         leftOperand: "Country",
@@ -84,38 +93,36 @@ async function getCountryRules(country) {
 /* -------------------- Business Logic -------------------- */
 async function evaluateDaytimeWindow(country) {
   if (!country) {
-    return { isWithinWindow: false, currentHour: "" };
+    return { isWithinWindow: true, currentHour: "" };
   }
 
   const rules = await getCountryRules(country);
 
-  // No rule → allow send
+  // No rule found → allow send
   if (!rules.length) {
     return { isWithinWindow: true, currentHour: "" };
   }
 
   const rule = rules[0];
-  const timezone = rule.Timezone;
-  const startHour = Number(rule.StartHour);
-  const endHour = Number(rule.EndHour);
-  const weekendBlocked = rule.WeekendBlocked === true;
-
-  const now = DateTime.now().setZone(timezone);
+  const now = DateTime.now().setZone(rule.Timezone);
   const hour = now.hour;
-  const weekday = now.weekday; // 6=Sat, 7=Sun
+  const weekday = now.weekday; // 6 = Sat, 7 = Sun
 
-  // Weekend restriction
-  if (weekendBlocked && (weekday === 6 || weekday === 7)) {
+  // Weekend block
+  if (rule.WeekendBlocked && (weekday === 6 || weekday === 7)) {
     return { isWithinWindow: false, currentHour: String(hour) };
   }
 
-  // Time window restriction
-  let isRestricted;
-  if (startHour > endHour) {
-    // Overnight window (e.g. 20 → 8)
-    isRestricted = hour >= startHour || hour < endHour;
+  // Time restriction
+  const start = rule.StartHour;
+  const end = rule.EndHour;
+
+  let isRestricted = false;
+  if (start > end) {
+    // Overnight window (20 → 8)
+    isRestricted = hour >= start || hour < end;
   } else {
-    isRestricted = hour >= startHour && hour < endHour;
+    isRestricted = hour >= start && hour < end;
   }
 
   return {
@@ -158,12 +165,9 @@ app.post("/activity/execute", validateJwt, async (req, res) => {
   } catch (err) {
     console.error("Execute error:", err);
 
-    // NEVER return non-200 → prevents JB hard bounce
+    // NEVER break Journey Builder
     return res.status(200).json([
-      {
-        isWithinWindow: "",
-        currentHour: ""
-      }
+      { isWithinWindow: "", currentHour: "" }
     ]);
   }
 });
@@ -175,6 +179,6 @@ app.post("/activity/publish", validateJwt, (req, res) => res.sendStatus(200));
 app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
 
 /* -------------------- Start Server -------------------- */
-app.listen(PORT, () => {
-  console.log(`🚀 Country Time Restriction Activity running on port ${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`🚀 Daytime Window Check running on port ${PORT}`)
+);
