@@ -49,20 +49,26 @@ async function getAccessToken() {
 async function getCountryRules(country) {
   const token = await getAccessToken();
 
-  const response = await axios.get(
-    `https://${process.env.SFMC_SUBDOMAIN}.rest.marketingcloudapis.com/data/v1/customobjectdata/key/Country_Restricted_Window/rowset`,
+  const response = await axios.post(
+    `https://${process.env.SFMC_SUBDOMAIN}.rest.marketingcloudapis.com/hub/v1/dataevents/key:Country_Restricted_Window/rowset`,
+    {
+      filter: {
+        leftOperand: "Country",
+        operator: "equals",
+        rightOperand: country
+      }
+    },
     {
       headers: {
-        Authorization: `Bearer ${token}`
-      },
-      params: {
-        $filter: `Country eq '${country.toLowerCase()}'`
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
       }
     }
   );
 
   return response.data.items || [];
 }
+
 
 /* -------------------- Business Logic -------------------- */
 async function evaluateDaytimeWindow(country) {
@@ -161,3 +167,4 @@ app.post("/activity/stop", allowAll, (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
