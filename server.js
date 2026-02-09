@@ -134,15 +134,18 @@ app.get('/.well-known/journeybuilder/config.json', (req, res) =>
 
 /* -------------------- Execute Endpoint -------------------- */
 app.post('/activity/execute', allowAll, (req, res) => {
-  const dedupeKey = `${req.body.activityId}:${req.body.definitionInstanceId}`;
-  if (executionCache.has(dedupeKey)) return res.sendStatus(200);
-  executionCache.add(dedupeKey);
-
   const inArgs = Object.assign({}, ...(req.body.inArguments || []));
   const result = evaluateDaytimeWindow(inArgs.country);
 
-  return res.status(200).json([{ isWithinWindow: result.isWithinWindow, currentHour: result.currentHour }]);
+  return res.status(200).json([
+    {
+      isWithinWindow: result.isWithinWindow ? "true" : "false",
+      currentHour:
+        result.currentHour !== null ? String(result.currentHour) : ""
+    }
+  ]);
 });
+
 
 /* -------------------- Lifecycle Endpoints -------------------- */
 app.post('/activity/save', allowAll, (req, res) => res.sendStatus(200));
@@ -152,5 +155,6 @@ app.post('/activity/stop', allowAll, (req, res) => res.sendStatus(200));
 
 /* -------------------- Start Server -------------------- */
 app.listen(PORT, () => console.log(`🚀 Daytime Window Check running on port ${PORT}`));
+
 
 
