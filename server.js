@@ -25,7 +25,7 @@ async function getAccessToken() {
   }
 
   const response = await axios.post(
-    `${process.env.AUTH_BASE_URL}/v2/token`,
+    `${process.env.SFMC_AUTH_BASE}/v2/token`,
     {
       grant_type: "client_credentials",
       client_id: process.env.CLIENT_ID,
@@ -45,7 +45,7 @@ async function getCountryRules(country) {
   const token = await getAccessToken();
 
   const response = await axios.post(
-    `${process.env.REST_BASE_URL}/hub/v1/dataevents/key:Country_Restricted_Window/rowset`,
+    `${process.env.SFMC_REST_BASE}/hub/v1/dataevents/key:Country_Restricted_Window/rowset`,
     {
       filter: {
         leftOperand: "Country",
@@ -66,31 +66,33 @@ async function getCountryRules(country) {
 
 /* -------------------- Business Logic -------------------- */
 async function evaluateDaytimeWindow(country) {
+  // ❌ No country passed → block
   if (!country) {
-    return { isWithinWindow: "true", currentHour: "" };
+    return { isWithinWindow: "false", currentHour: "" };
   }
 
   const rules = await getCountryRules(country);
 
-  // If country not found → allow send
-  if (!rules.length) {
-    return { isWithinWindow: "true", currentHour: "" };
+  // ❌ Country NOT present in DE → block
+  if (!rules || rules.length === 0) {
+    return { isWithinWindow: "false", currentHour: "" };
   }
 
-  const rule = rules[0];
-  const now = DateTime.now().setZone(rule.Timezone);
+  const rule = rules[0]; // one row per country
+  const timezone = rule.Timezone;
+
+  const now = DateTime.now().setZone(timezone);
   const hour = now.hour;
-  const weekday = now.weekday; // 6 = Sat, 7 = Sun
+  const weekday = now.weekday; // 6=Sat, 7=Sun
 
-  // Weekend restriction
-  if (rule.WeekendBlocked && (weekday === 6 || weekday === 7)) {
-    return {
-      isWithinWindow: "false",
-      currentHour: String(hour)
-    };
+  // ❌ Weekend restriction
+  if (
+    rule.WeekendBlocked === true &&
+    (weekday === 6 || weekday === 7)
+  ) {
+    return { isWithinWindow: "false", currentHour: String(hour) };
   }
 
-  // Time restriction
   const start = rule.StartHour;
   const end = rule.EndHour;
 
@@ -102,6 +104,7 @@ async function evaluateDaytimeWindow(country) {
     isRestricted = hour >= start && hour < end;
   }
 
+  // ✅ Allow ONLY if not restricted
   return {
     isWithinWindow: isRestricted ? "false" : "true",
     currentHour: String(hour)
@@ -142,9 +145,9 @@ app.post("/activity/execute", async (req, res) => {
   } catch (err) {
     console.error("Execute error:", err);
 
-    // MUST always return 200 to avoid JB hard bounce
+    // 🚨 NEVER break Journey
     return res.status(200).json([
-      { isWithinWindow: "", currentHour: "" }
+      { isWithinWindow: "false", currentHour: "" }
     ]);
   }
 });
