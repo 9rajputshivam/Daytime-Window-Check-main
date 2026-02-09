@@ -60,6 +60,7 @@ async function getCountryRules(country) {
   const response = await axios.post(
     `${process.env.SFMC_REST_BASE}/hub/v1/dataevents/key:Country_Restricted_Window/rowset`,
     {
+      props: ["Country", "Timezone", "StartHour", "EndHour", "WeekendBlocked"],
       filter: {
         leftOperand: "Country",
         operator: "equals",
@@ -76,6 +77,7 @@ async function getCountryRules(country) {
 
   return response.data.items || [];
 }
+
 
 /* -------------------- Evaluate Daytime Window -------------------- */
 async function evaluateDaytimeWindow(country) {
@@ -158,3 +160,4 @@ app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
