@@ -28,9 +28,9 @@ async function getAccessToken() {
     `${process.env.SFMC_AUTH_BASE}/v2/token`,
     {
       grant_type: "client_credentials",
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
-      account_id: process.env.ACCOUNT_ID
+      client_id: process.env.SFMC_CLIENT_ID,
+      client_secret: process.env.SFMC_CLIENT_SECRET,
+      account_id: process.env.SFMC_ACCOUNT_ID
     }
   );
 
@@ -162,3 +162,4 @@ app.post("/activity/stop", (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
