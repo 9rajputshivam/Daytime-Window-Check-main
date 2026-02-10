@@ -30,6 +30,9 @@ function validateJwt(req, res, next) {
   }
 }
 
+
+
+
 /* -------------------- SFMC OAuth -------------------- */
 /*---------------------------*/
 // Function to get Marketing Cloud access token
@@ -43,7 +46,7 @@ async function getAccessToken() {
     client_secret: SFMC_CLIENT_SECRET,
     account_id: SFMC_ACCOUNT_ID
   });
-
+  console.log('access token:',authResponse);
   return authResponse.data.access_token;
 }
 /*--------------------------*/
@@ -57,22 +60,23 @@ async function getAccessToken() {
 async function getCountryRules(country) {
   try {
     const token = await getAccessToken();
-    const url = `${process.env.SFMC_REST_BASE}/data/v1/customobjectdata/key/Country_Restricted_Window/rowset`;
+    const url = 'https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.rest.marketingcloudapis.com/data/v1/customobjectdata/key/BC3BD432-1A15-4638-B238-EE4A490A61A8/rowset?$filter=Country%20eq%20"'+country+'"';
 
-    const payload = {
+    /*const payload = {
       filter: {
-        leftOperand: { property: "Country", simpleOperator: "equals", value: country }
+        leftOperand: { property: "Country", simpleOperator: "equals", value: 'india' }
       },
       pageSize: 1
     };
-
-    const response = await axios.post(url, payload, {
+    */
+    console.log('end point URL - ', url);
+    const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"
       }
     });
-
+    console.log('Response', response);
     return response.data.items || [];
   } catch (err) {
     console.error("❌ Error fetching DE rows:", err.response?.data || err.message);
@@ -115,36 +119,32 @@ async function evaluateDaytimeWindow(country) {
   if (!country) return { isWithinWindow: "false", currentHour: "" };
 
   const rules = await getCountryRules(country);
+  console.log('Rules', rules);
 
-  // Country not found → block
   if (!rules || rules.length === 0) return { isWithinWindow: "false", currentHour: "" };
 
   const rule = rules[0];
-  const timezone = rule.Timezone;
+  const timezone = rule.values.timezone;
+  console.log('Timezone', timezone);
   const now = DateTime.now().setZone(timezone);
   const hour = now.hour;
   const weekday = now.weekday; // 1 = Mon, 7 = Sun
 
-  // Weekend block
-  const weekendBlocked = rule.WeekendBlocked === true || rule.WeekendBlocked === "true";
-  if (weekendBlocked && (weekday === 2 || weekday === 7)) {
+  const weekendBlocked = rule.values.weekendblocked === true || rule.values.weekendblocked === "true";
+  if (weekendBlocked && (weekday === 6 || weekday === 7)) {
     return { isWithinWindow: "false", currentHour: String(hour) };
   }
 
-  // Time window block
-  const start = Number(rule.StartHour);
-  const end = Number(rule.EndHour);
+  const start = Number(rule.values.starthour);
+  const end = Number(rule.values.endhour);
+  console.log('start hour', start);
+  console.log('end  hour', end);
 
-  let isRestricted;
-  if (start > end) {
-    // Overnight window (e.g., 20 → 8)
-    isRestricted = hour >= start || hour < end;
-  } else {
-    isRestricted = hour >= start && hour < end;
-  }
+  const isRestricted = start > end ? hour >= start || hour < end : hour >= start && hour < end;
 
   return { isWithinWindow: isRestricted ? "false" : "true", currentHour: String(hour) };
 }
+
 
 /* -------------------- Static / Health -------------------- */
 app.get("/", (req, res) =>
@@ -176,10 +176,10 @@ app.post("/activity/execute", validateJwt, async (req, res) => {
     ]);
   } catch (err) {
     console.error("Execute error:", err);
-    // NEVER break JB journey
     return res.status(200).json([{ isWithinWindow: "false", currentHour: "" }]);
   }
 });
+
 
 /* -------------------- Lifecycle Endpoints -------------------- */
 app.post("/activity/save", validateJwt, (req, res) => res.sendStatus(200));
@@ -191,8 +191,5 @@ app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
-
-
-
 
 
