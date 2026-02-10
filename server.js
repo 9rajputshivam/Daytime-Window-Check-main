@@ -173,45 +173,41 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 );
 
 /* -------------------- Execute Endpoint -------------------- */
-app.post("/activity/execute",  async (req, res) => {
+app.post("/activity/execute", async (req, res) => {
   try {
-    const payload = Array.isArray(req.body) ? req.body : [req.body];
+    const items = Array.isArray(req.body) ? req.body : [req.body];
  
-    const results = [];
+    const outArgs = [];
  
-    for (const item of payload) {
+    for (const item of items) {
       const inArgs = Object.assign({}, ...(item.inArguments || []));
       const country = inArgs.country;
  
       const result = await evaluateDaytimeWindow(country);
  
-      results.push({
-        keyValue: item.keyValue,
-        outArguments: {
-          isWithinWindow: result.isWithinWindow === "true",
-          currentHour: Number(result.currentHour)
-        }
+      outArgs.push({
+        isWithinWindow: result.isWithinWindow === true || result.isWithinWindow === "true",
+        currentHour: Number(result.currentHour)
       });
     }
  
-    return res.status(200).json(results);
+    return res.status(200).json({
+      outArguments: outArgs
+    });
   } catch (err) {
     console.error("Execute error:", err);
  
-    // IMPORTANT: still return a valid structure
-    return res.status(200).json(
-      (Array.isArray(req.body) ? req.body : [req.body]).map(item => ({
-        keyValue: item.keyValue,
-        outArguments: {
+    // Journey Builder STILL expects valid JSON
+    return res.status(200).json({
+      outArguments: [
+        {
           isWithinWindow: false,
           currentHour: null
         }
-      }))
-    );
+      ]
+    });
   }
 });
-
-
 /* -------------------- Lifecycle Endpoints -------------------- */
 app.post("/activity/save",  (req, res) => res.sendStatus(200));
 app.post("/activity/validate",  (req, res) => res.sendStatus(200));
@@ -222,6 +218,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
