@@ -133,7 +133,7 @@ async function evaluateDaytimeWindow(country) {
 
   // Weekend block
   const weekendBlocked = rule.WeekendBlocked === true || rule.WeekendBlocked === "true";
-  if (weekendBlocked && (weekday === 6 || weekday === 7)) {
+  if (weekendBlocked && (weekday === 2 || weekday === 7)) {
     return { isWithinWindow: "false", currentHour: String(hour) };
   }
 
@@ -197,5 +197,6 @@ app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
