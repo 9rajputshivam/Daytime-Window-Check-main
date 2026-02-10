@@ -12,30 +12,56 @@
       "description": "Validates daytime sending window by country"
     }
   },
- 
-"arguments": {
+ "arguments": {
+
   "execute": {
+
     "inArguments": [
+
       {
-        "country": "{{Contact.Attribute.Default.Country}}"
+
+        "country": "{{Contact.Default.Country}}"
+
       }
+
     ],
+
     "outArguments": [
-      { "name": "isWithinWindow"},
-      { "name": "currentHour"}
+
+      {
+
+        "isWithinWindow": ""
+
+      },
+
+      {
+
+        "currentHour": ""
+
+      }
+
     ],
+
     "url": "https://daytime-window-check-main.vercel.app/activity/execute",
+
     "verb": "POST",
-    "body": {},
-    "header": {},
+
     "format": "json",
-    "useJwt": true,
+
+    "useJwt": false,
+
     "timeout": 20000,
+
     "retryCount": 3,
+
     "retryDelay": 1000,
+
     "concurrentRequests": 6
+
   }
-},
+
+}
+
  
  
   "configurationArguments": {
