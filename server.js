@@ -54,38 +54,32 @@ async function getAccessToken() {
 /**
  * Fetch rows from a Data Extension
  */
-async function getCountryRules({ country }) {
+async function getCountryRules(country) {
   try {
-    // 1️⃣ Get SFMC access token
-    const accessToken = await getAccessToken();
-   //  const restBase = process.env.SFMC_REST_BASE; // e.g., https://mc12345.rest.marketingcloudapis.com
+    const token = await getAccessToken();
+    const url = `${process.env.SFMC_REST_BASE}/data/v1/customobjectdata/key/Country_Restricted_Window/rowset`;
 
-    // 2️⃣ API endpoint
-    const url = 'https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.rest.marketingcloudapis.com/data/v1/async/dataextensions/key:Country_Restricted_Window/rows';
-
-    // 3️⃣ Request payload: optional filter by country
     const payload = {
       filter: {
         leftOperand: { property: "Country", simpleOperator: "equals", value: country }
       },
-      pageSize: 10 // number of rows to fetch
+      pageSize: 1
     };
 
-    // 4️⃣ Make REST API call
     const response = await axios.post(url, payload, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
       }
     });
 
-    // 5️⃣ Return DE rows
-    return response.data.items; // array of rows
+    return response.data.items || [];
   } catch (err) {
-    console.error('❌ Error fetching DE rows:', err.response?.data || err.message);
+    console.error("❌ Error fetching DE rows:", err.response?.data || err.message);
     return [];
   }
 }
+
 
 /*--------------------------*/
   
@@ -197,6 +191,7 @@ app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
