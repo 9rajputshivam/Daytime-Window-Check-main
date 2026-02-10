@@ -5,39 +5,33 @@
     "category": "custom"
   },
   "type": "REST",
+ 
   "lang": {
     "en-US": {
       "name": "Daytime Window Check",
       "description": "Validates daytime sending window by country"
     }
   },
-"arguments": {
-  "execute": {
-    "inArguments": [
-      {
-        "country": "{{Contact.Default.Country}}"
-      }
-    ],
-    "outArguments": [
-      {
-        "isWithinWindow": ""
-      },
-      {
-        "currentHour": ""
-      }
-    ],
-    "url": "https://daytime-window-check-main.vercel.app/activity/execute",
-    "verb": "POST",
-    "format": "json",
-    "useJwt": false,
-    "timeout": 20000,
-    "retryCount": 3,
-    "retryDelay": 1000,
-    "concurrentRequests": 6
-  }
-}
  
-
+  "arguments": {
+    "execute": {
+      "inArguments": [
+        {
+          "country": "{{Contact.Attribute.Default.Country}}"
+        }
+      ],
+      "outArguments": [],
+      "url": "https://daytime-window-check-main.vercel.app/activity/execute",
+      "verb": "POST",
+      "format": "json",
+      "useJwt": false,
+      "timeout": 20000,
+      "retryCount": 3,
+      "retryDelay": 1000,
+      "concurrentRequests": 6
+    }
+  },
+ 
   "configurationArguments": {
     "save": {
       "url": "https://daytime-window-check-main.vercel.app/activity/save",
@@ -60,6 +54,7 @@
       "useJwt": false
     }
   },
+ 
   "userInterfaces": {
     "configModal": {
       "url": "https://daytime-window-check-main.vercel.app/index.html",
@@ -67,6 +62,7 @@
       "width": 450
     }
   },
+ 
   "schema": {
     "arguments": {
       "execute": {
@@ -81,24 +77,23 @@
           }
         ],
         "outArguments": [
-        {
-          "isWithinWindow": {
-            "dataType": "Boolean",
-            "isNullable": false,
-            "direction": "out",
-            "access": "visible"
+          {
+            "isWithinWindow": {
+              "dataType": "Boolean",
+              "isNullable": false,
+              "direction": "out",
+              "access": "visible"
+            }
+          },
+          {
+            "currentHour": {
+              "dataType": "Number",
+              "isNullable": false,
+              "direction": "out",
+              "access": "visible"
+            }
           }
-        },
-        {
-          "currentHour": {
-            "dataType": "Number",
-            "isNullable": false,
-            "direction": "out",
-            "access": "visible"
-          }
-        }
-      ]
- 
+        ]
       }
     }
   }
