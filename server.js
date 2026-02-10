@@ -173,32 +173,39 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 );
 
 /* -------------------- Execute Endpoint -------------------- */
-app.post("/activity/execute", async (req, res) => {
-  res.setHeader("Content-Type", "application/json");
- 
+app.post("/activity/execute",  async (req, res) => {
   try {
-    const inArguments = req.body.inArguments || [];
-    const outputs = [];
+    const payload = Array.isArray(req.body) ? req.body : [req.body];
  
-    for (const args of inArguments) {
-      const country = args.country;
+    const results = [];
+ 
+    for (const item of payload) {
+      const inArgs = Object.assign({}, ...(item.inArguments || []));
+      const country = inArgs.country;
+ 
       const result = await evaluateDaytimeWindow(country);
  
-      outputs.push({
-        isWithinWindow: result.isWithinWindow,
-        currentHour: result.currentHour
+      results.push({
+        keyValue: item.keyValue,
+        outArguments: {
+          isWithinWindow: result.isWithinWindow === "true",
+          currentHour: Number(result.currentHour)
+        }
       });
     }
  
-    return res.status(200).json(outputs);
+    return res.status(200).json(results);
   } catch (err) {
     console.error("Execute error:", err);
  
-    // MUST return same-length array even on error
+    // IMPORTANT: still return a valid structure
     return res.status(200).json(
-      (req.body.inArguments || []).map(() => ({
-        isWithinWindow: "false",
-        currentHour: ""
+      (Array.isArray(req.body) ? req.body : [req.body]).map(item => ({
+        keyValue: item.keyValue,
+        outArguments: {
+          isWithinWindow: false,
+          currentHour: null
+        }
       }))
     );
   }
@@ -215,6 +222,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
