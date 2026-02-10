@@ -5,19 +5,17 @@
     "category": "custom"
   },
   "type": "REST",
- 
   "lang": {
     "en-US": {
       "name": "Daytime Window Check",
       "description": "Validates daytime sending window by country"
     }
   },
- 
 "arguments": {
   "execute": {
     "inArguments": [
       {
-        "country": "{{Contact.Attribute.Default.Country}}"
+        "country": "{{Contact.Default.Country}}"
       }
     ],
     "outArguments": [
@@ -30,8 +28,6 @@
     ],
     "url": "https://daytime-window-check-main.vercel.app/activity/execute",
     "verb": "POST",
-    "body": {},
-    "header": {},
     "format": "json",
     "useJwt": false,
     "timeout": 20000,
@@ -39,9 +35,9 @@
     "retryDelay": 1000,
     "concurrentRequests": 6
   }
-},
+}
  
- 
+
   "configurationArguments": {
     "save": {
       "url": "https://daytime-window-check-main.vercel.app/activity/save",
@@ -64,7 +60,6 @@
       "useJwt": false
     }
   },
- 
   "userInterfaces": {
     "configModal": {
       "url": "https://daytime-window-check-main.vercel.app/index.html",
@@ -72,7 +67,6 @@
       "width": 450
     }
   },
- 
   "schema": {
     "arguments": {
       "execute": {
@@ -109,4 +103,3 @@
     }
   }
 }
- 
