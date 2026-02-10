@@ -173,24 +173,34 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 );
 
 /* -------------------- Execute Endpoint -------------------- */
-app.post("/activity/execute",  async (req, res) => {
+app.post("/activity/execute", async (req, res) => {
   res.setHeader("Content-Type", "application/json");
-
+ 
   try {
-    const inArgs = Object.assign({}, ...(req.body.inArguments || []));
-    const country = inArgs.country;
-
-    const result = await evaluateDaytimeWindow(country);
-
-    return res.status(200).json([
-      {
+    const inArguments = req.body.inArguments || [];
+    const outputs = [];
+ 
+    for (const args of inArguments) {
+      const country = args.country;
+      const result = await evaluateDaytimeWindow(country);
+ 
+      outputs.push({
         isWithinWindow: result.isWithinWindow,
         currentHour: result.currentHour
-      }
-    ]);
+      });
+    }
+ 
+    return res.status(200).json(outputs);
   } catch (err) {
     console.error("Execute error:", err);
-    return res.status(200).json([{ isWithinWindow: "false", currentHour: "" }]);
+ 
+    // MUST return same-length array even on error
+    return res.status(200).json(
+      (req.body.inArguments || []).map(() => ({
+        isWithinWindow: "false",
+        currentHour: ""
+      }))
+    );
   }
 });
 
@@ -205,6 +215,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
