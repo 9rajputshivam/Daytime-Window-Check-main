@@ -31,29 +31,66 @@ function validateJwt(req, res, next) {
 }
 
 /* -------------------- SFMC OAuth -------------------- */
-let cachedToken = null;
-let tokenExpiry = null;
-
+/*---------------------------*/
+// Function to get Marketing Cloud access token
 async function getAccessToken() {
-  if (cachedToken && tokenExpiry > Date.now()) return cachedToken;
+  const authUrl = 'https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.auth.marketingcloudapis.com/v2/token';
+  const { SFMC_CLIENT_ID, SFMC_CLIENT_SECRET, SFMC_ACCOUNT_ID } = process.env;
 
-  const response = await axios.post(
-    `${process.env.SFMC_AUTH_BASE}/v2/token`,
-    {
-      grant_type: "client_credentials",
-      client_id: process.env.SFMC_CLIENT_ID,
-      client_secret: process.env.SFMC_CLIENT_SECRET,
-      account_id: process.env.SFMC_ACCOUNT_ID
-    }
-  );
+  const authResponse = await axios.post(authUrl, {
+    grant_type: 'client_credentials',
+    client_id: SFMC_CLIENT_ID,
+    client_secret: SFMC_CLIENT_SECRET,
+    account_id: SFMC_ACCOUNT_ID
+  });
 
-  cachedToken = response.data.access_token;
-  tokenExpiry = Date.now() + response.data.expires_in * 1000 - 60000; // refresh 1 min early
+  return authResponse.data.access_token;
+}
+/*--------------------------*/
 
-  return cachedToken;
+/*-------------------------- fetch Country details ---------------------*/
+const axios = require('axios');
+
+/**
+ * Fetch rows from a Data Extension
+ */
+async function getCountryRules({ country }) {
+  try {
+    // 1️⃣ Get SFMC access token
+    const accessToken = await getAccessToken();
+   //  const restBase = process.env.SFMC_REST_BASE; // e.g., https://mc12345.rest.marketingcloudapis.com
+
+    // 2️⃣ API endpoint
+    const url = 'https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.rest.marketingcloudapis.com/data/v1/async/dataextensions/key:Country_Restricted_Window/rows';
+
+    // 3️⃣ Request payload: optional filter by country
+    const payload = {
+      filter: {
+        leftOperand: { property: "Country", simpleOperator: "equals", value: country }
+      },
+      pageSize: 10 // number of rows to fetch
+    };
+
+    // 4️⃣ Make REST API call
+    const response = await axios.post(url, payload, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // 5️⃣ Return DE rows
+    return response.data.items; // array of rows
+  } catch (err) {
+    console.error('❌ Error fetching DE rows:', err.response?.data || err.message);
+    return [];
+  }
 }
 
+/*--------------------------*/
+  
 /* -------------------- Fetch Country Rules from DE -------------------- */
+/* added commnets
 async function getCountryRules(country) {
   const token = await getAccessToken();
 
@@ -76,7 +113,7 @@ async function getCountryRules(country) {
   );
 
   return response.data.items || [];
-}
+}*/
 
 
 /* -------------------- Evaluate Daytime Window -------------------- */
@@ -160,4 +197,5 @@ app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
