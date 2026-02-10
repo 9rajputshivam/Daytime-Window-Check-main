@@ -18,17 +18,31 @@ app.use(express.static(path.join(__dirname, "public")));
 
 /* -------------------- JWT Validation -------------------- */
 function validateJwt(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).send("Missing Authorization header");
 
-  const token = authHeader.replace("Bearer ", "");
-  try {
-    jwt.verify(token, process.env.JWT_SECRET);
-    next();
-  } catch (err) {
-    return res.status(401).send("Invalid JWT");
+  const token = req.body?.jwt;
+ 
+  if (!token) {
+
+    return res.status(401).send("Missing JWT in request body");
+
   }
+ 
+  try {
+
+    jwt.verify(token, process.env.JWT_SECRET);
+
+    next();
+
+  } catch (err) {
+
+    console.error("JWT validation failed:", err.message);
+
+    return res.status(401).send("Invalid JWT");
+
+  }
+
 }
+ 
 
 
 
@@ -191,5 +205,6 @@ app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
