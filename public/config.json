@@ -42,22 +42,22 @@
     "save": {
       "url": "https://daytime-window-check-main.vercel.app/activity/save",
       "verb": "POST",
-      "useJwt": false
+      "useJwt": true
     },
     "publish": {
       "url": "https://daytime-window-check-main.vercel.app/activity/publish",
       "verb": "POST",
-      "useJwt": false
+      "useJwt": true
     },
     "validate": {
       "url": "https://daytime-window-check-main.vercel.app/activity/validate",
       "verb": "POST",
-      "useJwt": false
+      "useJwt": true
     },
     "stop": {
       "url": "https://daytime-window-check-main.vercel.app/activity/stop",
       "verb": "POST",
-      "useJwt": false
+      "useJwt": true
     }
   },
  
