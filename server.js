@@ -173,7 +173,7 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 );
 
 /* -------------------- Execute Endpoint -------------------- */
-app.post("/activity/execute", validateJwt, async (req, res) => {
+app.post("/activity/execute",  async (req, res) => {
   res.setHeader("Content-Type", "application/json");
 
   try {
@@ -196,15 +196,16 @@ app.post("/activity/execute", validateJwt, async (req, res) => {
 
 
 /* -------------------- Lifecycle Endpoints -------------------- */
-app.post("/activity/save", validateJwt, (req, res) => res.sendStatus(200));
-app.post("/activity/validate", validateJwt, (req, res) => res.sendStatus(200));
-app.post("/activity/publish", validateJwt, (req, res) => res.sendStatus(200));
-app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
+app.post("/activity/save",  (req, res) => res.sendStatus(200));
+app.post("/activity/validate",  (req, res) => res.sendStatus(200));
+app.post("/activity/publish",  (req, res) => res.sendStatus(200));
+app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 
 /* -------------------- Start Server -------------------- */
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
