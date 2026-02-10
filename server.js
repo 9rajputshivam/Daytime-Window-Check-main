@@ -49,7 +49,7 @@ async function getAccessToken() {
 /*--------------------------*/
 
 /*-------------------------- fetch Country details ---------------------*/
-const axios = require('axios');
+
 
 /**
  * Fetch rows from a Data Extension
@@ -197,6 +197,7 @@ app.post("/activity/stop", validateJwt, (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
