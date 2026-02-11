@@ -131,34 +131,51 @@ async function getCountryRules(country) {
 
 /* -------------------- Evaluate Daytime Window -------------------- */
 async function evaluateDaytimeWindow(country) {
-  if (!country) return { isWithinWindow: "false", currentHour: "" };
-
-  const rules = await getCountryRules(country);
-  console.log('Rules', rules);
-
-  if (!rules || rules.length === 0) return { isWithinWindow: "false", currentHour: "" };
-
-  const rule = rules[0];
-  const timezone = rule.values.timezone;
-  console.log('Timezone', timezone);
-  const now = DateTime.now().setZone(timezone);
-  const hour = now.hour;
-  const weekday = now.weekday; // 1 = Mon, 7 = Sun
-
-  const weekendBlocked = rule.values.weekendblocked === true || rule.values.weekendblocked === "true";
-  if (weekendBlocked && (weekday === 6 || weekday === 7)) {
-    return { isWithinWindow: "false", currentHour: String(hour) };
+  if (!country) {
+    return { isWithinWindow: false, currentHour: 0 };
   }
 
-  const start = Number(rule.values.starthour);
-  const end = Number(rule.values.endhour);
-  console.log('start hour', start);
-  console.log('end  hour', end);
+  const rules = await getCountryRules(country);
 
-  const isRestricted = start > end ? hour >= start || hour < end : hour >= start && hour < end;
+  if (!rules || rules.length === 0) {
+    return { isWithinWindow: false, currentHour: 0 };
+  }
 
-  return { isWithinWindow: isRestricted ? "false" : "true", currentHour: String(hour) };
+  const rule = rules[0];
+
+  const timezone = rule.values.Timezone || rule.values.timezone;
+  const start = Number(rule.values.StartHour || rule.values.starthour);
+  const end = Number(rule.values.EndHour || rule.values.endhour);
+
+  const weekendBlocked =
+    rule.values.WeekendBlocked === true ||
+    rule.values.WeekendBlocked === "true" ||
+    rule.values.weekendblocked === true ||
+    rule.values.weekendblocked === "true";
+
+  if (!timezone) {
+    return { isWithinWindow: false, currentHour: 0 };
+  }
+
+  const now = DateTime.now().setZone(timezone);
+  const hour = now.hour;
+  const weekday = now.weekday;
+
+  if (weekendBlocked && (weekday === 6 || weekday === 7)) {
+    return { isWithinWindow: false, currentHour: hour };
+  }
+
+  const isRestricted =
+    start > end
+      ? hour >= start || hour < end
+      : hour >= start && hour < end;
+
+  return {
+    isWithinWindow: !isRestricted,   // ✅ Boolean
+    currentHour: hour               // ✅ Number
+  };
 }
+
 
 
 /* -------------------- Static / Health -------------------- */
@@ -226,6 +243,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
