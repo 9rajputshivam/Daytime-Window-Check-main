@@ -17,7 +17,7 @@
     "execute": {
       "inArguments": [
         {
-          "country": "{{Contact.Attribute.6B122F89-193A-4C27-9B31-951E83CA6F8A.Country}}"`
+          "country": "{{Country}}"`
         }
       ],
       "outArguments": [],
