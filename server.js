@@ -191,17 +191,21 @@ app.post("/activity/execute", async (req, res) => {
       });
     }
 
-    return res.status(200).json(responses);
+    return res.status(200).json({
+      outArguments: responses
+    });
 
   } catch (err) {
     console.error("Execute error:", err);
 
-    return res.status(200).json([
-      {
-        isWithinWindow: false,
-        currentHour: 0
-      }
-    ]);
+    return res.status(200).json({
+      outArguments: [
+        {
+          isWithinWindow: false,
+          currentHour: 0
+        }
+      ]
+    });
   }
 });
 
@@ -216,6 +220,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
