@@ -20,7 +20,14 @@
           "country": "{{Contact.Attribute.Default.Country}}"
         }
       ],
-      "outArguments": [],
+      "outArguments": [
+          {
+            "isWithinWindow": ""
+          },
+          {
+            "currentHour": ""
+          }
+      ],
       "url": "https://daytime-window-check-main.vercel.app/activity/execute",
       "verb": "POST",
       "format": "json",
