@@ -1,80 +1,20 @@
-
-
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Daytime Window Check</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/postmonger@1.1.3/postmonger.min.js"></script>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            margin: 0;
-        }
-
-        .step {
-            display: none;
-        }
-
-        #step1 {
-            display: block;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .info {
-            background: #f0f8ff;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            font-size: 12px;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <title>Daytime Window Check</title>
+  <script src="https://unpkg.com/postmonger"></script>
+  <script src="customActivity.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+  </style>
 </head>
-
 <body>
-
-    <div id="step1" class="step">
-        <h3>Configure Country Field</h3>
-
-        <label for="countryField">Select Country Data Field:</label>
-
-        <input 
-            type="text" 
-            id="countryField" 
-            placeholder="e.g., {{Contact.Attribute.Default.Country}}" 
-        />
-
-        <div class="info">
-            <strong>Common Examples:</strong><br>
-            • {{Contact.Attribute.Default.Country}}<br>
-            • {{Contact.Default.Country}}<br>
-            • {{InteractionDefaults.Country}}<br>
-            • {{Contact.Attribute.CountryName}}
-        </div>
-    </div>
-
-    <script src="customActivity.js"></script>
-
+  <h2>Daytime Window Check</h2>
+  <p>
+    This activity automatically evaluates the sending window based on the
+    <b>Country field from Journey Entry Source.</b>
+  </p>
+  <p>No more configuration is required.</p>
 </body>
 </html>
-
-
