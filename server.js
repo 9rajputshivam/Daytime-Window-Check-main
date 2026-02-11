@@ -221,7 +221,8 @@ app.post("/activity/execute", async (req, res) => {
         country= 'india';
       }
       const result = await evaluateDaytimeWindow(country);
- 
+      console.log("Processing result:", result);
+      console.log("Processing country:", country);
       // ✅ Push ONLY the flat data object
 
       responseArray.push({
@@ -278,6 +279,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
