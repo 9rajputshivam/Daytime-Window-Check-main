@@ -204,7 +204,7 @@ app.post("/activity/execute", async (req, res) => {
     // ✅ Handle both single object and array of objects
 
     const items = Array.isArray(req.body) ? req.body : [req.body];
-    console.log('Print Items', items);
+    
     const isBatchRequest = Array.isArray(req.body);
 
     const responseArray = [];
@@ -214,12 +214,10 @@ app.post("/activity/execute", async (req, res) => {
       const inArgs = Object.assign({}, ...(item.inArguments || []));
 
       const country = inArgs.country;
- 
-      console.log("Processing country:", country);
+  
      
       const result = await evaluateDaytimeWindow(country);
-      console.log("Processing result:", result);
-      console.log("Processing country:", country);
+      
       // ✅ Push ONLY the flat data object
 
       responseArray.push({
@@ -276,6 +274,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
