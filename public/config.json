@@ -17,13 +17,10 @@
     "execute": {
       "inArguments": [
         {
-          "country": "india"
+          "country": "{{Contact.Attribute.Default.Country}}"
         }
       ],
-      "outArguments": [
-        { "isWithinWindow": false },
-        { "currentHour": 0 }
-      ],
+      "outArguments": [],
 
       "url": "https://daytime-window-check-main.vercel.app/activity/execute",
       "verb": "POST",
@@ -32,11 +29,8 @@
       "timeout": 20000,
       "retryCount": 3,
       "retryDelay": 1000,
-      "concurrentRequests": 6,
-      "securityOptions": {
-        "securityType": "securityContext",
-        "securityContextKey": "f2d3391e-85c4-4c1d-b9ba-223b0a6825df"
-      }
+      "concurrentRequests": 6
+      
     }
   },
  
@@ -44,37 +38,25 @@
     "save": {
       "url": "https://daytime-window-check-main.vercel.app/activity/save",
       "verb": "POST",
-       "securityOptions": {
-        "securityType": "securityContext",
-        "securityContextKey": "f2d3391e-85c4-4c1d-b9ba-223b0a6825df"
-      },
+       
       "useJwt": false
     },
     "publish": {
       "url": "https://daytime-window-check-main.vercel.app/activity/publish",
       "verb": "POST",
-      "securityOptions": {
-        "securityType": "securityContext",
-        "securityContextKey": "f2d3391e-85c4-4c1d-b9ba-223b0a6825df"
-      },
+      
       "useJwt": false
     },
     "validate": {
       "url": "https://daytime-window-check-main.vercel.app/activity/validate",
       "verb": "POST",
-      "securityOptions": {
-        "securityType": "securityContext",
-        "securityContextKey": "f2d3391e-85c4-4c1d-b9ba-223b0a6825df"
-      },
+      
       "useJwt": false
     },
     "stop": {
       "url": "https://daytime-window-check-main.vercel.app/activity/stop",
       "verb": "POST",
-      "securityOptions": {
-        "securityType": "securityContext",
-        "securityContextKey": "f2d3391e-85c4-4c1d-b9ba-223b0a6825df"
-      },
+      
       "useJwt": false
     }
   },
