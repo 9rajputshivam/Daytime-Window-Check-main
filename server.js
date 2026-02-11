@@ -177,7 +177,6 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 app.post("/activity/execute", async (req, res) => {
   try {
     const items = Array.isArray(req.body) ? req.body : [req.body];
-
     const responses = [];
 
     for (const item of items) {
@@ -192,7 +191,8 @@ app.post("/activity/execute", async (req, res) => {
       });
     }
 
-    return res.status(200).json(responses); // ✅ IMPORTANT
+    return res.status(200).json(responses);
+
   } catch (err) {
     console.error("Execute error:", err);
 
@@ -204,18 +204,8 @@ app.post("/activity/execute", async (req, res) => {
     ]);
   }
 });
- 
-    // Journey Builder STILL expects valid JSON
-    return res.status(200).json({
-      outArguments: [
-        {
-          isWithinWindow: false,
-          currentHour: null
-        }
-      ]
-    });
-  }
-});
+
+   
 /* -------------------- Lifecycle Endpoints -------------------- */
 app.post("/activity/save",  (req, res) => res.sendStatus(200));
 app.post("/activity/validate",  (req, res) => res.sendStatus(200));
@@ -226,6 +216,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
