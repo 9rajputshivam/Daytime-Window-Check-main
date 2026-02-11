@@ -1,74 +1,54 @@
 {
   "workflowApiVersion": "1.1",
   "metaData": {
-    "icon": "https://daytime-window-check-main.vercel.app/icon.png",
+    "icon": "https://daytime-window-check-main.onrender.com/icon.png",
     "category": "custom"
   },
   "type": "REST",
- 
   "lang": {
     "en-US": {
       "name": "Daytime Window Check",
       "description": "Validates daytime sending window by country"
     }
   },
- 
   "arguments": {
     "execute": {
-      "inArguments": [
-        {
-          "country": "{{Contact.Attribute.6B122F89-193A-4C27-9B31-951E83CA6F8A.Country}}"`
-        }
-      ],
+      "inArguments": [],
       "outArguments": [],
-
-      "url": "https://daytime-window-check-main.vercel.app/activity/execute",
+      "url": "https://daytime-window-check-main.onrender.com/activity/execute",
       "verb": "POST",
       "format": "json",
       "useJwt": false,
-      "timeout": 20000,
-      "retryCount": 3,
-      "retryDelay": 1000,
-      "concurrentRequests": 6
-      
+      "timeout": 20000
     }
   },
- 
   "configurationArguments": {
     "save": {
-      "url": "https://daytime-window-check-main.vercel.app/activity/save",
-      "verb": "POST",
-       
-      "useJwt": false
+      "url": "https://daytime-window-check-main.onrender.com/activity/save"
     },
     "publish": {
-      "url": "https://daytime-window-check-main.vercel.app/activity/publish",
-      "verb": "POST",
-      
-      "useJwt": false
+      "url": "https://daytime-window-check-main.onrender.com/activity/publish"
     },
     "validate": {
-      "url": "https://daytime-window-check-main.vercel.app/activity/validate",
-      "verb": "POST",
-      
-      "useJwt": false
+      "url": "https://daytime-window-check-main.onrender.com/activity/validate"
     },
     "stop": {
-      "url": "https://daytime-window-check-main.vercel.app/activity/stop",
-      "verb": "POST",
-      
-      "useJwt": false
+      "url": "https://daytime-window-check-main.onrender.com/activity/stop"
     }
   },
- 
+  "wizardSteps": [
+    {
+      "label": "Configure Country",
+      "key": "step1"
+    }
+  ],
   "userInterfaces": {
     "configModal": {
-      "url": "https://daytime-window-check-main.vercel.app/index.html",
-      "height": 450,
-      "width": 450
+      "url": "https://daytime-window-check-main.onrender.com/index.html",
+      "height": 500,
+      "width": 600
     }
   },
- 
   "schema": {
     "arguments": {
       "execute": {
@@ -77,8 +57,7 @@
             "country": {
               "dataType": "Text",
               "isNullable": false,
-              "direction": "in",
-              "access": "visible"
+              "direction": "in"
             }
           }
         ],
@@ -86,17 +65,13 @@
           {
             "isWithinWindow": {
               "dataType": "Boolean",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
+              "direction": "out"
             }
           },
           {
             "currentHour": {
               "dataType": "Number",
-              "isNullable": false,
-              "direction": "out",
-              "access": "visible"
+              "direction": "out"
             }
           }
         ]
