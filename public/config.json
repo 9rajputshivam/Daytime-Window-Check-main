@@ -17,7 +17,7 @@
     "execute": {
       "inArguments": [
         {
-          "country": "{{Contact.Attribute.DND_DE.Country}}"
+          "country": "{{Contact.Attribute.Country}}"
         }
       ],
       "outArguments": [],
