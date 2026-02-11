@@ -213,13 +213,10 @@ app.post("/activity/execute", async (req, res) => {
 
       const inArgs = Object.assign({}, ...(item.inArguments || []));
 
-      let country = inArgs.country;
+      const country = inArgs.country;
  
       console.log("Processing country:", country);
-      if(!country)
-      {
-        country= 'india';
-      }
+     
       const result = await evaluateDaytimeWindow(country);
       console.log("Processing result:", result);
       console.log("Processing country:", country);
@@ -279,6 +276,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
