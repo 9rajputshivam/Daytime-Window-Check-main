@@ -75,7 +75,7 @@ async function getAccessToken() {
 async function getCountryRules(country) {
   try {
     const token = await getAccessToken();
-    const url = 'https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.rest.marketingcloudapis.com/data/v1/customobjectdata/key/BC3BD432-1A15-4638-B238-EE4A490A61A8/rowset?$filter=Country%20eq%20"'+country+'"';
+    const url = `https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.rest.marketingcloudapis.com/data/v1/customobjectdata/key/BC3BD432-1A15-4638-B238-EE4A490A61A8/rowset?$filter=Country eq '${encodeURIComponent(country)}'`;
 
     /*const payload = {
       filter: {
@@ -177,26 +177,33 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 app.post("/activity/execute", async (req, res) => {
   try {
     const items = Array.isArray(req.body) ? req.body : [req.body];
- 
-    const outArgs = [];
- 
+
+    const responses = [];
+
     for (const item of items) {
       const inArgs = Object.assign({}, ...(item.inArguments || []));
       const country = inArgs.country;
- 
+
       const result = await evaluateDaytimeWindow(country);
- 
-      outArgs.push({
-        isWithinWindow: result.isWithinWindow === true || result.isWithinWindow === "true",
+
+      responses.push({
+        isWithinWindow: result.isWithinWindow === "true",
         currentHour: Number(result.currentHour)
       });
     }
- 
-    return res.status(200).json({
-      outArguments: outArgs
-    });
+
+    return res.status(200).json(responses); // ✅ IMPORTANT
   } catch (err) {
     console.error("Execute error:", err);
+
+    return res.status(200).json([
+      {
+        isWithinWindow: false,
+        currentHour: 0
+      }
+    ]);
+  }
+});
  
     // Journey Builder STILL expects valid JSON
     return res.status(200).json({
@@ -219,6 +226,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
