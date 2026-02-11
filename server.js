@@ -76,7 +76,7 @@ async function getCountryRules(country) {
   try {
     const token = await getAccessToken();
     const url = `https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.rest.marketingcloudapis.com/data/v1/customobjectdata/key/BC3BD432-1A15-4638-B238-EE4A490A61A8/rowset?$filter=Country eq '${encodeURIComponent(country)}'`;
-
+    // Master Data Extension - Country_Restricted_Window
     /*const payload = {
       filter: {
         leftOperand: { property: "Country", simpleOperator: "equals", value: 'india' }
@@ -204,7 +204,7 @@ app.post("/activity/execute", async (req, res) => {
     // ✅ Handle both single object and array of objects
 
     const items = Array.isArray(req.body) ? req.body : [req.body];
-
+    console.log('Print Items', items);
     const isBatchRequest = Array.isArray(req.body);
 
     const responseArray = [];
@@ -216,7 +216,10 @@ app.post("/activity/execute", async (req, res) => {
       const country = inArgs.country;
  
       console.log("Processing country:", country);
- 
+      if(!country)
+      {
+        country= 'india';
+      }
       const result = await evaluateDaytimeWindow(country);
  
       // ✅ Push ONLY the flat data object
@@ -228,6 +231,7 @@ app.post("/activity/execute", async (req, res) => {
         currentHour: result.currentHour
 
       });
+        
 
     }
  
@@ -274,4 +278,5 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
