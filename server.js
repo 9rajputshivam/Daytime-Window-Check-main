@@ -191,48 +191,78 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 );
 
 /* -------------------- Execute Endpoint -------------------- */
+/* -------------------- Execute Endpoint -------------------- */
+
 app.post("/activity/execute", async (req, res) => {
+
   try {
+
+    // Log the incoming request for debugging
+
+    console.log("Execute request body:", JSON.stringify(req.body, null, 2));
+ 
+    // ✅ Handle both single object and array of objects
+
     const items = Array.isArray(req.body) ? req.body : [req.body];
 
+    const isBatchRequest = Array.isArray(req.body);
+
     const responseArray = [];
-
+ 
     for (const item of items) {
-      const inArgs = Object.assign({}, ...(item.inArguments || []));
-      const country = inArgs.country;
 
+      const inArgs = Object.assign({}, ...(item.inArguments || []));
+
+      const country = inArgs.country;
+ 
+      console.log("Processing country:", country);
+ 
       const result = await evaluateDaytimeWindow(country);
+ 
+      // ✅ Push ONLY the flat data object
 
       responseArray.push({
-        outArguments: [
-          {
-            isWithinWindow: result.isWithinWindow,
-            currentHour: result.currentHour
-          }
-        ]
+
+        isWithinWindow: result.isWithinWindow,
+
+        currentHour: result.currentHour
+
       });
 
     }
+ 
+    // ✅ Return format based on request type:
 
-    // ✅ CRITICAL: Must return ARRAY for Journey Builder
-    return res.status(200).json(responseArray);
+    // - Single request → single object
 
+    // - Batch request → array of objects
+
+    const response = isBatchRequest ? responseArray : responseArray[0];
+ 
+    console.log("Execute response:", JSON.stringify(response, null, 2));
+ 
+    return res.status(200).json(response);
+ 
   } catch (err) {
+
     console.error("Execute error:", err);
+ 
+    // ✅ Error response matches request type
 
-    return res.status(200).json([
-      {
-        outArguments: [
-          {
-            isWithinWindow: false,
-            currentHour: 0,
-          },
-        ],
-      },
-    ]);
+    const isBatchRequest = Array.isArray(req.body);
+
+    const errorResponse = isBatchRequest 
+
+      ? [{ isWithinWindow: false, currentHour: 0 }]
+
+      : { isWithinWindow: false, currentHour: 0 };
+ 
+    return res.status(200).json(errorResponse);
+
   }
-});
 
+});
+ 
    
 /* -------------------- Lifecycle Endpoints -------------------- */
 app.post("/activity/save",  (req, res) => res.sendStatus(200));
@@ -244,6 +274,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
