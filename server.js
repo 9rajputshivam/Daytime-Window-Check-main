@@ -207,10 +207,11 @@ app.post("/activity/execute", async (req, res) => {
         outArguments: [
           {
             isWithinWindow: result.isWithinWindow,
-            currentHour: result.currentHour,
-          },
-        ],
+            currentHour: result.currentHour
+          }
+        ]
       });
+
     }
 
     // ✅ CRITICAL: Must return ARRAY for Journey Builder
@@ -243,6 +244,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
