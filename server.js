@@ -212,11 +212,11 @@ app.post("/activity/execute", async (req, res) => {
       if (!country || country.trim() === "") {
         console.warn("⚠️ Country is empty or null, defaulting to false");
         country='india';
-        responseArray.push({
+        /*responseArray.push({
           isWithinWindow: false,
           currentHour: 0
         });
-        continue;
+        continue;*/
       }
 
       console.log("Processing country:", country);
@@ -264,6 +264,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
