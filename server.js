@@ -43,20 +43,9 @@ function validateJwt(req, res, next) {
   }
 
 }
+ 
 
 
-/* ----------------------------------------------------------------- 
-add country holiday list to restrict sending communications 
-------------------------------------------------------------------*/
-
-/* -------------------- Hardcoded Holiday Dataset -------------------- */
-
-const holidayDataset = [
-  { country: "India", holiday: "Republic Day", date: "2026-01-26" },
-  { country: "India", holiday: "Independence Day", date: "2026-08-15" },
-  { country: "USA", holiday: "Independence Day", date: "2026-07-04" },
-  { country: "USA", holiday: "Christmas", date: "2026-12-25" }
-];
 
 
 /* -------------------- SFMC OAuth -------------------- */
@@ -87,7 +76,7 @@ async function getCountryRules(country) {
   try {
     const token = await getAccessToken();
     const url = `https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.rest.marketingcloudapis.com/data/v1/customobjectdata/key/BC3BD432-1A15-4638-B238-EE4A490A61A8/rowset?$filter=Country eq '${encodeURIComponent(country)}'`;
-    // Master Data Extension - Country_Restricted_Window
+
     /*const payload = {
       filter: {
         leftOperand: { property: "Country", simpleOperator: "equals", value: 'india' }
@@ -171,28 +160,11 @@ async function evaluateDaytimeWindow(country) {
   const now = DateTime.now().setZone(timezone);
   const hour = now.hour;
   const weekday = now.weekday;
-  const todayDate = now.toISODate(); // YYYY-MM-DD
 
   if (weekendBlocked && (weekday === 6 || weekday === 7)) {
     return { isWithinWindow: false, currentHour: hour };
   }
 
-  /* -------------------- Holiday Check -------------------- */
-
-  const isHoliday = holidayDataset.some(h =>
-    h.country.toLowerCase() === country.toLowerCase() &&
-    h.date === todayDate
-  );
-  
-  if (isHoliday) {
-    console.log(`🚫 Holiday matched for ${country} on ${todayDate}`);
-    return {
-      isWithinWindow: false,
-      currentHour: hour
-    };
-  }
-
-  /* -------------------- DND Check-------------------- */
   const isRestricted =
     start > end
       ? hour >= start || hour < end
@@ -222,17 +194,25 @@ app.get("/.well-known/journeybuilder/config.json", (req, res) =>
 /* -------------------- Execute Endpoint -------------------- */
 
 app.post("/activity/execute", async (req, res) => {
+
   try {
+
     // Log the incoming request for debugging
+
     console.log("Execute request body:", JSON.stringify(req.body, null, 2));
  
     // ✅ Handle both single object and array of objects
+
     const items = Array.isArray(req.body) ? req.body : [req.body];
+
     const isBatchRequest = Array.isArray(req.body);
+
     const responseArray = [];
  
     for (const item of items) {
+
       const inArgs = Object.assign({}, ...(item.inArguments || []));
+
       const country = inArgs.country;
  
       console.log("Processing country:", country);
@@ -240,15 +220,23 @@ app.post("/activity/execute", async (req, res) => {
       const result = await evaluateDaytimeWindow(country);
  
       // ✅ Push ONLY the flat data object
+
       responseArray.push({
+
         isWithinWindow: result.isWithinWindow,
+
         currentHour: result.currentHour
+
       });
+
     }
  
     // ✅ Return format based on request type:
+
     // - Single request → single object
+
     // - Batch request → array of objects
+
     const response = isBatchRequest ? responseArray : responseArray[0];
  
     console.log("Execute response:", JSON.stringify(response, null, 2));
@@ -256,17 +244,25 @@ app.post("/activity/execute", async (req, res) => {
     return res.status(200).json(response);
  
   } catch (err) {
+
     console.error("Execute error:", err);
  
     // ✅ Error response matches request type
+
     const isBatchRequest = Array.isArray(req.body);
+
     const errorResponse = isBatchRequest 
+
       ? [{ isWithinWindow: false, currentHour: 0 }]
+
       : { isWithinWindow: false, currentHour: 0 };
  
     return res.status(200).json(errorResponse);
+
   }
+
 });
+ 
    
 /* -------------------- Lifecycle Endpoints -------------------- */
 app.post("/activity/save",  (req, res) => res.sendStatus(200));
@@ -278,18 +274,6 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
