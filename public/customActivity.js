@@ -14,10 +14,11 @@ window.onload = function () {
 
     // REQUIRED inArguments (must exist)
     payload.arguments.execute.inArguments = [
-      {
-        country: "{{Event.5b761d4c-323a-6b4d-8d47-6d08b5b2617b.Country}}"
+      { 
+        country: "india"
       }
     ];
+
 
     // REQUIRED metadata
     payload.metaData = payload.metaData || {};
@@ -29,9 +30,3 @@ window.onload = function () {
     connection.trigger("updateActivity", payload);
   });
 };
-
-
-
-
-
-
