@@ -17,7 +17,7 @@
     "execute": {
       "inArguments": [
         {
-          "country": "{{Contact.Key}}"
+          "country": "{{Contact.Attribute.Country}}"
         }
       ],
       "outArguments": [],
