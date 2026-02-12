@@ -43,9 +43,20 @@ function validateJwt(req, res, next) {
   }
 
 }
- 
 
 
+/* ----------------------------------------------------------------- 
+add country holiday list to restrict sending communications 
+------------------------------------------------------------------*/
+
+/* -------------------- Hardcoded Holiday Dataset -------------------- */
+
+const holidayDataset = [
+  { country: "India", holiday: "Republic Day", date: "2026-01-26" },
+  { country: "India", holiday: "Independence Day", date: "2026-08-15" },
+  { country: "USA", holiday: "Independence Day", date: "2026-07-04" },
+  { country: "USA", holiday: "Christmas", date: "2026-12-25" }
+];
 
 
 /* -------------------- SFMC OAuth -------------------- */
@@ -160,11 +171,28 @@ async function evaluateDaytimeWindow(country) {
   const now = DateTime.now().setZone(timezone);
   const hour = now.hour;
   const weekday = now.weekday;
+  const todayDate = now.toISODate(); // YYYY-MM-DD
 
   if (weekendBlocked && (weekday === 6 || weekday === 7)) {
     return { isWithinWindow: false, currentHour: hour };
   }
 
+  /* -------------------- Holiday Check -------------------- */
+
+  const isHoliday = holidayDataset.some(h =>
+    h.country.toLowerCase() === country.toLowerCase() &&
+    h.date === todayDate
+  );
+  
+  if (isHoliday) {
+    console.log(`🚫 Holiday matched for ${country} on ${todayDate}`);
+    return {
+      isWithinWindow: false,
+      currentHour: hour
+    };
+  }
+
+  /* -------------------- DND Check-------------------- */
   const isRestricted =
     start > end
       ? hour >= start || hour < end
@@ -274,6 +302,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
