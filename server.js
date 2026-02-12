@@ -75,7 +75,7 @@ async function getAccessToken() {
 async function getCountryRules(country) {
   try {
     const token = await getAccessToken();
-    const url = `https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.rest.marketingcloudapis.com/data/v1/customobjectdata/key/BC3BD432-1A15-4638-B238-EE4A490A61A8/rowset?$filter=Country eq '${encodeURIComponent(country)}'`;
+    const url = `https://mcgdcvj-8bxvjrmps6j-r1cp-gk8.rest.marketingcloudapis.com/data/v1/customobjectdata/key/A7774E8B-EFEF-41BB-AC68-210B6C586367/rowset?$filter=Country eq '${encodeURIComponent(country)}'`;
 
     /*const payload = {
       filter: {
@@ -274,6 +274,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
