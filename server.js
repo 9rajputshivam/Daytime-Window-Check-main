@@ -241,7 +241,7 @@ app.post("/activity/execute", async (req, res) => {
 
       const inArgs = Object.assign({}, ...(item.inArguments || []));
       //const inArgs = Object.assign({}, ...(item.arguments?.execute?.inArguments || []));
-      console.log("All resolved values:", inArgs);
+      
 
 
       const country = inArgs.country;
@@ -305,6 +305,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
