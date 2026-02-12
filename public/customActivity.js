@@ -14,7 +14,7 @@ window.onload = function () {
 
     // REQUIRED inArguments (must exist)
     payload.arguments.execute.inArguments = [
-      { country: "{{Contact.Attribute.Country}}" }
+      { country: "{{InteractionDefaults.Country}}" }
     ];
 
 
@@ -28,6 +28,7 @@ window.onload = function () {
     connection.trigger("updateActivity", payload);
   });
 };
+
 
 
 
