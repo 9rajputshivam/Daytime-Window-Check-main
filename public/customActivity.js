@@ -15,7 +15,7 @@ window.onload = function () {
     // REQUIRED inArguments (must exist)
     payload.arguments.execute.inArguments = [
       {
-        country: "{{Event.DEAudience-33bd01d3-3b0f-6d57-b79f-2de2718a2b42.Country}}"
+        country: "{{Event.5b761d4c-323a-6b4d-8d47-6d08b5b2617b.Country}}"
       }
     ];
 
@@ -29,6 +29,7 @@ window.onload = function () {
     connection.trigger("updateActivity", payload);
   });
 };
+
 
 
 
