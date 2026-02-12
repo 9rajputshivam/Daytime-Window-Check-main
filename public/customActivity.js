@@ -15,7 +15,7 @@ window.onload = function () {
     // REQUIRED inArguments (must exist)
     payload.arguments.execute.inArguments = [
       { 
-        country: "india"
+        country: "{{Event.36da2543-0412-4654-9b08-bb7120e1cd61.Country}}"
       }
     ];
 
@@ -30,3 +30,4 @@ window.onload = function () {
     connection.trigger("updateActivity", payload);
   });
 };
+
