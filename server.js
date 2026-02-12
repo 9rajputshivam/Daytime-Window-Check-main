@@ -52,7 +52,7 @@ add country holiday list to restrict sending communications
 /* -------------------- Hardcoded Holiday Dataset -------------------- */
 
 const holidayDataset = [
-  { country: "India", holiday: "Republic Day", date: "2026-01-26" },
+  { country: "India", holiday: "Republic Day", date: "2026-02-12" },
   { country: "India", holiday: "Independence Day", date: "2026-08-15" },
   { country: "USA", holiday: "Independence Day", date: "2026-07-04" },
   { country: "USA", holiday: "Christmas", date: "2026-12-25" }
@@ -302,6 +302,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
