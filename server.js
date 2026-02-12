@@ -317,7 +317,7 @@ const holidayDataset = [
   { country: "Portugal", holiday: "Independence Restoration Day", date: "2026-12-01" },
   { country: "Portugal", holiday: "Immaculate Conception Day", date: "2026-12-08" },
   { country: "Portugal", holiday: "Christmas Day", date: "2026-12-25" },
-  { country: "Romania", holiday: "New Year's Day", date: "2026-01-01" },
+  { country: "Romania", holiday: "New Year's Day", date: "2026-02-12" },
   { country: "Romania", holiday: "Day after New Year's Day", date: "2026-01-02" },
   { country: "Romania", holiday: "Epiphany/Theophany", date: "2026-01-06" },
   { country: "Romania", holiday: "The Sobor of the Holy Prophet Jonh the Baptize", date: "2026-01-07" },
@@ -635,6 +635,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
