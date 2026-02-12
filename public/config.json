@@ -17,7 +17,7 @@
     "execute": {
       "inArguments": [
         {
-          "country": "{{Contact.Attribute.Country}}"
+          "country": "{{Event.EventKey.Country}}"
         }
       ],
       "outArguments": [],
