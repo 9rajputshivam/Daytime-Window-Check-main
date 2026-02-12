@@ -14,11 +14,10 @@ window.onload = function () {
 
     // REQUIRED inArguments (must exist)
     payload.arguments.execute.inArguments = [
-      { 
-        country: "india"
+      {
+        country: "{{Contact.Attribute.Default.Country}}"
       }
     ];
-
 
     // REQUIRED metadata
     payload.metaData = payload.metaData || {};
@@ -30,12 +29,3 @@ window.onload = function () {
     connection.trigger("updateActivity", payload);
   });
 };
-
-
-
-
-
-
-
-
-
