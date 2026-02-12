@@ -15,7 +15,7 @@ window.onload = function () {
     // REQUIRED inArguments (must exist)
     payload.arguments.execute.inArguments = [
       {
-        country: "Austria"
+        country: "{{Interaction.Country}}"|| "Austria"
       }
     ];
 
@@ -29,4 +29,5 @@ window.onload = function () {
     connection.trigger("updateActivity", payload);
   });
 };
+
 
