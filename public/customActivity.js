@@ -14,7 +14,7 @@ window.onload = function () {
 
     // REQUIRED inArguments (must exist)
     payload.arguments.execute.inArguments = [
-      { country: "india" }
+      { country: "{{Event.Country}}" }
     ];
 
 
@@ -28,5 +28,6 @@ window.onload = function () {
     connection.trigger("updateActivity", payload);
   });
 };
+
 
 
