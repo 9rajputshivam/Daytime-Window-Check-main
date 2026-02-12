@@ -502,6 +502,7 @@ async function evaluateDaytimeWindow(country) {
   const now = DateTime.now().setZone(timezone);
   const hour = now.hour;
   const weekday = now.weekday;
+  const todayDate = now.toFormat("yyyy-MM-dd");
 
   /* ---------------Weekend cehck ----------------------*/
   
@@ -635,6 +636,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
