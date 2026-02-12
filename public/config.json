@@ -1,3 +1,4 @@
+config.json 
 {
   "workflowApiVersion": "1.1",
   "metaData": {
@@ -17,7 +18,7 @@
     "execute": {
       "inArguments": [
         {
-          "country": "{{Event.5b761d4c-323a-6b4d-8d47-6d08b5b2617b.Country}}"
+          "country": "{{Contact.Attribute.Default.country}}"
         }
       ],
       "outArguments": [],
