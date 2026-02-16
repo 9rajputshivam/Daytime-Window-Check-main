@@ -403,7 +403,7 @@ async function getAccessToken() {
     client_secret: SFMC_CLIENT_SECRET,
     account_id: SFMC_ACCOUNT_ID
   });
-  console.log('access token:',authResponse);
+  
   return authResponse.data.access_token;
 }
 /*--------------------------*/
@@ -433,7 +433,7 @@ async function getCountryRules(country) {
         "Content-Type": "application/json"
       }
     });
-    console.log('Response', response);
+   
     return response.data.items || [];
   } catch (err) {
     console.error("❌ Error fetching DE rows:", err.response?.data || err.message);
@@ -577,7 +577,7 @@ app.post("/activity/execute", async (req, res) => {
 
       const country = inArgs.country;
  
-      console.log("Processing country:", country);
+      
  
       const result = await evaluateDaytimeWindow(country);
  
@@ -636,6 +636,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
