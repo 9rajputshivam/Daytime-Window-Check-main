@@ -202,6 +202,7 @@ async function evaluateDaytimeWindow(country) {
   /* ---------------Weekend cehck ----------------------*/
   
   if (weekendBlocked && (weekday === 1 || weekday === 7)) {
+    console.log("Weekend");
     return { isWithinWindow: false, currentHour: hour };
   }
 
@@ -336,6 +337,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
