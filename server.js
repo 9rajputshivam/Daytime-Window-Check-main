@@ -136,36 +136,6 @@ async function getCountryHolidayRules(country, date) {
 
 
 
-
-/*--------------------------*/
-  
-/* -------------------- Fetch Country Rules from DE -------------------- */
-/* added commnets
-async function getCountryRules(country) {
-  const token = await getAccessToken();
-
-  const response = await axios.post(
-    `${process.env.SFMC_REST_BASE}/hub/v1/dataevents/key:Country_Restricted_Window/rowset`,
-    {
-      props: ["Country", "Timezone", "StartHour", "EndHour", "WeekendBlocked"],
-      filter: {
-        leftOperand: "Country",
-        operator: "equals",
-        rightOperand: country
-      }
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      }
-    }
-  );
-
-  return response.data.items || [];
-}*/
-
-
 /* -------------------- Evaluate Daytime Window -------------------- */
 async function evaluateDaytimeWindow(country) {
   if (!country) {
@@ -337,6 +307,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
