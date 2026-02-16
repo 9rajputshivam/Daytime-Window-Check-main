@@ -207,17 +207,22 @@ async function evaluateDaytimeWindow(country) {
 
     /* -------------------- Holiday Check -------------------- */
 
-  const isHoliday = holidayDataset.some(h =>
-    h.country.toLowerCase() === country.toLowerCase() &&
-    h.date === todayDate
-  );
-  
-  if (isHoliday) {
-    console.log(`🚫 Holiday matched for ${country} on ${todayDate}`);
+  const holidayRules =
+    await getCountryHolidayRules(country, todayDate);
+
+
+  if (holidayRules.length > 0) {
+
+    console.log(`Holiday Found for ${country}`);
+
     return {
+
       isWithinWindow: false,
+
       currentHour: hour
+
     };
+
   }
 
   /* ---------DND check --------------------------------*/
@@ -331,6 +336,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
