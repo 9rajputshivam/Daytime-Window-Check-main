@@ -198,7 +198,7 @@ async function evaluateDaytimeWindow(country) {
 
   /* ---------DND check --------------------------------*/
 
-  const isRestricted =
+  /*const isRestricted =
     start > end
       ? hour >= start || hour < end
       : hour >= start && hour < end;
@@ -207,6 +207,53 @@ async function evaluateDaytimeWindow(country) {
     isWithinWindow: !isRestricted,   // ✅ Boolean
     currentHour: hour               // ✅ Number
   };
+}*/
+
+  /* -------- Check Rule 1 -------- */
+
+const rule1 = rules[0];
+
+const start1 = Number(rule1.values.StartHour);
+const end1 = Number(rule1.values.EndHour);
+
+const restricted1 =
+  start1 > end1
+    ? hour >= start1 || hour < end1
+    : hour >= start1 && hour < end1;
+
+
+/* -------- Check Rule 2 (if exists) -------- */
+
+let restricted2 = false;
+
+if (rules.length > 1) {
+
+  const rule2 = rules[1];
+
+  const start2 = Number(rule2.values.StartHour);
+
+  const end2 = Number(rule2.values.EndHour);
+
+  restricted2 =
+    start2 > end2
+      ? hour >= start2 || hour < end2
+      : hour >= start2 && hour < end2;
+
+}
+
+
+/* -------- Final result -------- */
+
+const isRestricted = restricted1 || restricted2;
+
+
+return {
+
+  isWithinWindow: !isRestricted,
+
+  currentHour: hour
+
+};
 }
 
 
@@ -307,6 +354,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
