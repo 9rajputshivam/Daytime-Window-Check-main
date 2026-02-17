@@ -213,8 +213,10 @@ async function evaluateDaytimeWindow(country) {
 
 const rule1 = rules[0];
 
-const start1 = Number(rule1.values.StartHour);
-const end1 = Number(rule1.values.EndHour);
+const start1 = Number(rule1.values.StartHour || rule1.values.starthour);
+
+const end1 = Number(rule1.values.EndHour || rule1.values.endhour);
+
 
 const restricted1 =
   start1 > end1
@@ -230,9 +232,9 @@ if (rules.length > 1) {
 
   const rule2 = rules[1];
 
-  const start2 = Number(rule2.values.StartHour);
+  const start2 = Number(rule2.values.StartHour || rule2.values.starthour);
 
-  const end2 = Number(rule2.values.EndHour);
+const end2 = Number(rule2.values.EndHour || rule2.values.endhour);
 
   restricted2 =
     start2 > end2
@@ -354,6 +356,7 @@ app.post("/activity/stop",  (req, res) => res.sendStatus(200));
 app.listen(PORT, () =>
   console.log(`🚀 Daytime Window Check running on port ${PORT}`)
 );
+
 
 
 
